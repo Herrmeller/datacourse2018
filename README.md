@@ -71,8 +71,11 @@ Try to use (only) the `dplyr`-verbs to create a highly readable function:
  And the pipe `%>%` to pass the output to the next part of the function (Pipe read as *then*).
  
  <https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf>
- 
-Often `rollapply` from the package `zoo`is very helpful:
+
+
+# Some hints
+
+### Often `rollapply` from the package `zoo`is very helpful:
 
 ```{r}
 > df %>% mutate(tm5 = rollapply(tm, width = 5, FUN = "mean", align="center", fill=NA))
@@ -88,9 +91,13 @@ Often `rollapply` from the package `zoo`is very helpful:
  7 1987-01-07  1443   2.1  -4.6  -2.6   1.7 -1.28
  8 1987-01-08  1443   0.0  -7.2  -5.6  -1.6 -2.70
  9 1987-01-09  1443   0.0  -8.2  -4.5  -1.7 -5.30
-10 1987-01-10  1443   1.4  -4.1  -2.8  -0.8 -7.78
+10 1987-01-10  1443   1.4  -4.1  -2.8  -0.8 -7.78
 # ... with 10,948 more rows
+```
 
+### Create a dummy dataset
+
+Often it is helpful to have a smaller, dummy dataset by hand to test the R function.
 
 
 
