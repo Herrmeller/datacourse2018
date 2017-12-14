@@ -71,11 +71,13 @@ Try to use (only) the `dplyr`-verbs to create a highly readable function:
  And the pipe `%>%` to pass the output to the next part of the function (Pipe read as *then*).
  
  <https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf>
+ 
+ Chapter 19 about R functions in Hadley Wickham's book "R for Data Science": >http://r4ds.had.co.nz/functions.html>
 
 
 # Some hints
 
-### Often `rollapply` from the package `zoo`is very helpful:
+#### Often `rollapply` from the package `zoo`is very helpful:
 
 ```{r}
 > df %>% mutate(tm5 = rollapply(tm, width = 5, FUN = "mean", align="center", fill=NA))
@@ -95,11 +97,9 @@ Try to use (only) the `dplyr`-verbs to create a highly readable function:
 # ... with 10,948 more rows
 ```
 
-### Create a dummy dataset
-
+#### Create a dummy dataset
 Often it is helpful to have a smaller, dummy dataset by hand to test the R function.
 
+#### Test print out
+Insert test print out to see what the function is doing (`print()`,`cat()`).
 
-
-## Hints
-...
