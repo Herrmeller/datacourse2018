@@ -72,7 +72,7 @@ Try to use the `dplyr`-verbs:
  
 Often `rollapply` from the package `zoo`is very helpful:
 
-´´´{r}
+```{r}
 > df %>% mutate(tm5 = rollapply(tm, width = 5, FUN = "mean", align="center", fill=NA))
 # A tibble: 10,958 x 7
          date    id  rain    tn    tm    tx   tm5
@@ -88,7 +88,7 @@ Often `rollapply` from the package `zoo`is very helpful:
  9 1987-01-09  1443   0.0  -8.2  -4.5  -1.7 -5.30
 10 1987-01-10  1443   1.4  -4.1  -2.8  -0.8 -7.78
 # ... with 10,948 more rows
-´´´
+
 
 
 
