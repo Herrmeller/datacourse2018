@@ -7,19 +7,16 @@ Collection of all R functions to calculate the indices from the paper:
  * Journal: <http://www.int-res.com/abstracts/cr/v19/n3/p193-212/#> 
  * PDF: <http://www.int-res.com/articles/cr2002/19/c019p193.pdf>
 
-Set of indices to cover manifold aspects of changing climate. To calculate the indices, rainfall and temperature date is needed. Daily values are suggested. Temperature data should cover daily minimum, mean and maximum temperature (`Tmin`, `Tmean`and `Tmax`).
+The paper presents a set of indices to cover manifold aspects of changing climate. To calculate the indices, rainfall and temperature date are needed on a daily basis. Temperature data should cover daily minimum, mean and maximum temperature (`Tmin`, `Tmean`and `Tmax`).
 
 ![frich](frich_index.png "Frich et al. 2002")
 
 
-## Instructions ##
+test 
+
 Develope a robust and comprehensive function in R to calculate the particular index. Insert a comment block in the code with a few lines to describe the functionality and how the index is calculated.
 Name your R-File according to the index, e.g. _Fd.R_, _ETR.R_, _Tn90.R_ etc.
 At the end, submit your code snippet via e-mail.
----
-
-
-
 
 ---
 ## Example function
