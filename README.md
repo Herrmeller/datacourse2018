@@ -11,8 +11,7 @@ The paper presents a set of indices to cover manifold aspects of changing climat
 
 ![frich](frich_index.png "Frich et al. 2002")
 
-
-test 
+## Exercise 
 
 Develope a robust and comprehensive function in R to calculate the particular index. Insert a comment block in the code with a few lines to describe the functionality and how the index is calculated.
 Name your R-File according to the index, e.g. _Fd.R_, _ETR.R_, _Tn90.R_ etc.
