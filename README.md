@@ -1,20 +1,28 @@
 # Data Course 2018
 
+## Background
 Collection of all R functions to calculate the indices from the paper: 
 
 **Frich et al. (2002):** Observed Coherent Changes in Climatic Extremes During the Second Half of the Twentieth Century, Climate Research, 19(3): 193–212. 
  * Journal: <http://www.int-res.com/abstracts/cr/v19/n3/p193-212/#> 
  * PDF: <http://www.int-res.com/articles/cr2002/19/c019p193.pdf>
 
-Name your R-File according to the index, e.g. _Fd.R_, _ETR.R_, _Tn90.R_ etc.
-
----
+Set of indices to cover manifold aspects of changing climate. To calculate the indices, rainfall and temperature date is needed. Daily values are suggested. Temperature data should cover daily minimum, mean and maximum temperature (`Tmin`, `Tmean`and `Tmax`).
 
 ![frich](frich_index.png "Frich et al. 2002")
 
-Please send your functions to michael.stoelzle @ hydro.uni-freiburg.de
+
+## Instructions ##
+Develope a robust and comprehensive function in R to calculate the particular index. Insert a comment block in the code with a few lines to describe the functionality and how the index is calculated.
+Name your R-File according to the index, e.g. _Fd.R_, _ETR.R_, _Tn90.R_ etc.
+At the end, submit your code snippet via e-mail.
+---
+
+
+
 
 ---
+## Example function
 
 Here’s some code, ```id``` represents the station id in Baden-Württemberg.
 ```{r}
@@ -49,3 +57,6 @@ Here’s some code, ```id``` represents the station id in Baden-Württemberg.
  9  1197 1988-08-12   9.6  18.8
 10  5664 1979-08-27   0.0  11.0
 ```
+
+## Hints
+...
