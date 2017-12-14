@@ -68,9 +68,12 @@ Try to use the `dplyr`-verbs:
  * `arrange` (to bring the observations of the `data_frame` in a specific order)
  * and others like: `top_n()`,`count()`,`tally()`, `slice()`,...
  
+ <https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf>
+ 
 Often `rollapply` from the package `zoo`is very helpful:
-´´´
- > df %>% mutate(tm5 = rollapply(tm, width = 5, FUN = "mean", align="center", fill=NA))
+
+´´´{r}
+> df %>% mutate(tm5 = rollapply(tm, width = 5, FUN = "mean", align="center", fill=NA))
 # A tibble: 10,958 x 7
          date    id  rain    tn    tm    tx   tm5
        <date> <int> <dbl> <dbl> <dbl> <dbl> <dbl>
@@ -86,8 +89,6 @@ Often `rollapply` from the package `zoo`is very helpful:
 10 1987-01-10  1443   1.4  -4.1  -2.8  -0.8 -7.78
 # ... with 10,948 more rows
 ´´´
-
-Here’s some code, ```id``` represents the station id in Baden-Württemberg.
 
 
 
