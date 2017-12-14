@@ -13,11 +13,13 @@ The paper presents a set of indices to cover manifold aspects of changing climat
 
 ## Exercise 
 
-Develope a robust and comprehensive function in R to calculate the particular index. Insert a comment block in the code with a few lines to describe the functionality and how the index is calculated.
+Develope a robust and comprehensive function in R to calculate the particular index. There is more nformation about the indices in the paper (Frich et al., 2002). First, think about a good stragety to nest the desired functionality into a R function. Insert a comment block in the code with a few lines to describe the functionality and how the index is calculated.
 Name your R-File according to the index, e.g. _Fd.R_, _ETR.R_, _Tn90.R_ etc.
 At the end, submit your code snippet via e-mail.
 
 ## Example function
+
+The function should work for any length of input data. With `group_by` in the `dplyr`-Package it will be possible to calculate the index values on a yearly ('year') or monthly ('month') basis. `NA`-values should be considered as well as other quality-check, e.g. miniumum length of a data year that is required to calculate an index value for that specific year etc.
 
 Here’s some code, ```id``` represents the station id in Baden-Württemberg.
 ```{r}
