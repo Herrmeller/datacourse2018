@@ -66,13 +66,15 @@ Try to use (only) the `dplyr`-verbs to create a highly readable function:
  * `mutate` (to calculate new variables in a new column)
  * `summarise`(to summarise many observations into one value, e.g. `mean(...)`)
  * `arrange` (to bring the observations of the `data_frame` in a specific order)
- * and others like: `top_n()`,`count()`,`tally()`, `slice()`,...
+ * and others like: `top_n()`,`count()`,`tally()`, `slice()`, `row_number()`, `nrow()`...
  
  And the pipe `%>%` to pass the output to the next part of the function (Pipe read as *then*).
  
+ R Studio Cheatsheet `dplyr`:
  <https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf>
  
- Chapter 19 about R functions in Hadley Wickham's book "R for Data Science": >http://r4ds.had.co.nz/functions.html>
+ Chapter 19 about R functions in Hadley Wickham's book "R for Data Science": 
+ <http://r4ds.had.co.nz/functions.html>
 
 
 # Some hints
