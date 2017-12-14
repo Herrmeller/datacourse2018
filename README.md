@@ -2,7 +2,9 @@
 
 Collection of all R functions to calculate the indices from the paper: 
 
-**Frich et al. (2002):** Observed Coherent Changes in Climatic Extremes During the Second Half of the Twentieth Century, Climate Research, 19(3): 193–212. Journal: <http://www.int-res.com/abstracts/cr/v19/n3/p193-212/#> PDF: <http://www.int-res.com/articles/cr2002/19/c019p193.pdf>
+**Frich et al. (2002):** Observed Coherent Changes in Climatic Extremes During the Second Half of the Twentieth Century, Climate Research, 19(3): 193–212. 
+ * Journal: <http://www.int-res.com/abstracts/cr/v19/n3/p193-212/#> 
+ * PDF: <http://www.int-res.com/articles/cr2002/19/c019p193.pdf>
 
 Name your R-File according to the index, e.g. _Fd.R_, _ETR.R_, _Tn90.R_ etc.
 
