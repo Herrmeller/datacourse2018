@@ -1,4 +1,4 @@
-# Data Course 2018
+# Data Course (2018)
 
 ## Background
 Collection of all R functions to calculate the indices from the paper: 
@@ -17,42 +17,45 @@ Develope a robust and comprehensive function in R to calculate the particular in
 Name your R-File according to the index, e.g. _Fd.R_, _ETR.R_, _Tn90.R_ etc.
 At the end, submit your code snippet via e-mail.
 
----
 ## Example function
 
 Here’s some code, ```id``` represents the station id in Baden-Württemberg.
 ```{r}
-> df %>% sample_n(., 8)
-# A tibble: 8 x 9
-     id       date   RSK  RSKF SHK_TAG   TNK   TMK   TXK   UPM
-  <int>     <date> <dbl> <int>   <int> <dbl> <dbl> <dbl> <int>
-1  1443 2002-02-03   0.0     0       0   4.4  10.0  18.0    59
-2  5229 1954-10-08   0.4     1       0   1.4   3.2   6.5    85
-3  1197 1989-05-13   3.9     6       0   6.4  10.1  15.1    81
-4  1468 2001-01-02  12.9     6      10   0.9   2.9   6.3    93
-5   259 1971-03-24   0.0     0       0  -2.4   6.0  10.2    54
-6  4931 1957-01-07   0.0     0       0   1.1   2.9   7.7    79
-7  2814 2005-04-28   0.1     6       0   3.5  10.6  16.3    68
-8  4300 2007-04-24   0.0     0       0   6.9  14.6  23.7    59
+> library("tidyverse")
+> df <- read_tsv('/User/data/id_2305.txt')
+> head(df)
+# A tibble: 6 x 3
+        date  rain  temp
+      <date> <dbl> <dbl>
+1 1987-01-01  21.3  10.8
+2 1987-01-02   6.4   5.5
+3 1987-01-03   0.2  -0.6
+4 1987-01-04   3.0   2.2
+5 1987-01-05   6.1   4.2
+6 1987-01-06  12.0   2.8
+
+> tail(df)
+# A tibble: 6 x 3
+        date  rain  temp
+      <date> <dbl> <dbl>
+1 2016-12-26   2.7   7.0
+2 2016-12-27   0.0   0.9
+3 2016-12-28   0.0  -0.6
+4 2016-12-29   0.0  -2.2
+5 2016-12-30   0.0  -5.6
+6 2016-12-31   0.0  -6.9
+
+> summary(df)
+      date                 rain              temp       
+ Min.   :1987-01-01   Min.   :  0.000   Min.   :-16.20  
+ 1st Qu.:1994-07-02   1st Qu.:  0.000   1st Qu.:  4.90  
+ Median :2001-12-31   Median :  0.100   Median : 10.60  
+ Mean   :2001-12-31   Mean   :  3.502   Mean   : 10.29  
+ 3rd Qu.:2009-07-01   3rd Qu.:  4.200   3rd Qu.: 15.90  
+ Max.   :2016-12-31   Max.   :131.300   Max.   : 28.50  
+                      NA's   :1   
 ```
 
-
-```
-> df %>% select(id, date, rain=RSK, temp=TMK) %>% sample_n(.,10)
-# A tibble: 10 x 4
-      id       date  rain  temp
-   <int>     <date> <dbl> <dbl>
- 1  2638 2008-01-29   0.0   3.1
- 2  1602 1998-04-25   7.7  14.4
- 3   259 1983-09-20   0.0  12.9
- 4  5731 1990-07-11   0.0  16.3
- 5  5664 2016-05-08   0.0  17.0
- 6  4887 1949-08-02  10.7  23.2
- 7   259 2010-03-16   0.3   6.2
- 8  3761 1957-10-16   0.8  11.0
- 9  1197 1988-08-12   9.6  18.8
-10  5664 1979-08-27   0.0  11.0
-```
 
 ## Hints
 ...
