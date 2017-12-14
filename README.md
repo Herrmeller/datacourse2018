@@ -6,6 +6,6 @@ Collection of all R functions to calculate the indices from the paper:
 
 
 Inline-style: 
-![alt text](datacourse2018/frich_index.png "Frich et al. 2002")
+![alt text](frich_index.png "Frich et al. 2002")
 
 Please send your functions to michael.stoelzle @ hydro.uni-freiburg.de
