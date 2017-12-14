@@ -17,11 +17,8 @@ Develope a robust and comprehensive function in R to calculate the particular in
 Name your R-File according to the index, e.g. _Fd.R_, _ETR.R_, _Tn90.R_ etc.
 At the end, submit your code snippet via e-mail.
 
-## Example function
+## Load data and summary
 
-The function should work for any length of input data. With `group_by` in the `dplyr`-Package it will be possible to calculate the index values on a yearly ('year') or monthly ('month') basis. `NA`-values should be considered as well as other quality-check, e.g. miniumum length of a data year that is required to calculate an index value for that specific year etc.
-
-Here’s some code, ```id``` represents the station id in Baden-Württemberg.
 ```{r}
 > library("tidyverse")
 > df <- read_tsv('/User/data/id_2305.txt')
@@ -57,6 +54,41 @@ Here’s some code, ```id``` represents the station id in Baden-Württemberg.
  Max.   :2016-12-31   Max.   :131.300   Max.   : 28.50  
                       NA's   :1   
 ```
+
+
+## Example function
+
+The function should work for any length of input data. With `group_by` in the `dplyr`-Package it will be possible to calculate the index values on a yearly ('year') or monthly ('month') basis. `NA`-values should be considered as well as other quality-check, e.g. miniumum length of a data year that is required to calculate an index value for that specific year etc.
+
+Try to use the `dplyr`-verbs:
+ * `filter` (to filter specific obervations in the rows)
+ * `select` (to select specific variables in the columns, if needed)
+ * `mutate` (to calculate new variables in a new column)
+ * `summarise`(to summarise many observations into one value, e.g. `mean(...)`)
+ * `arrange` (to bring the observations of the `data_frame` in a specific order)
+ * and others like: `top_n()`,`count()`,`tally()`, `slice()`,...
+ 
+Often `rollapply` from the package `zoo`is very helpful:
+´´´
+ > df %>% mutate(tm5 = rollapply(tm, width = 5, FUN = "mean", align="center", fill=NA))
+# A tibble: 10,958 x 7
+         date    id  rain    tn    tm    tx   tm5
+       <date> <int> <dbl> <dbl> <dbl> <dbl> <dbl>
+ 1 1987-01-01  1443   8.6   8.3  11.4  13.1    NA
+ 2 1987-01-02  1443   7.0   5.0   5.5  13.1    NA
+ 3 1987-01-03  1443   6.2  -2.7  -0.8   5.1  4.38
+ 4 1987-01-04  1443   1.3  -2.6   1.5   4.5  2.50
+ 5 1987-01-05  1443   8.8   0.3   4.3   5.7  0.88
+ 6 1987-01-06  1443   6.9   1.2   2.0   5.6 -0.08
+ 7 1987-01-07  1443   2.1  -4.6  -2.6   1.7 -1.28
+ 8 1987-01-08  1443   0.0  -7.2  -5.6  -1.6 -2.70
+ 9 1987-01-09  1443   0.0  -8.2  -4.5  -1.7 -5.30
+10 1987-01-10  1443   1.4  -4.1  -2.8  -0.8 -7.78
+# ... with 10,948 more rows
+´´´
+
+Here’s some code, ```id``` represents the station id in Baden-Württemberg.
+
 
 
 ## Hints
