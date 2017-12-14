@@ -55,6 +55,8 @@ At the end, submit your code snippet via e-mail.
                       NA's   :1   
 ```
 
+![bwtemp](bwtemp.pdf "mean tempature in BW")
+
 
 ## Example function
 
