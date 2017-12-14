@@ -58,15 +58,17 @@ At the end, submit your code snippet via e-mail.
 
 ## Example function
 
-The function should work for any length of input data. With `group_by` in the `dplyr`-Package it will be possible to calculate the index values on a yearly ('year') or monthly ('month') basis. `NA`-values should be considered as well as other quality-check, e.g. miniumum length of a data year that is required to calculate an index value for that specific year etc.
+The function should work for any length of input data. With `group_by` in the `dplyr`-Package it will be possible to calculate the index values on a yearly (`year`) or monthly (`month`) basis. `NA`-values should be considered as well as other quality checks, e.g. miniumum length of a data year that is required to calculate an index value for that specific year etc. Later on the function can be refined by checking data types (double, numeric, etc)...
 
-Try to use the `dplyr`-verbs:
+Try to use (only) the `dplyr`-verbs to create a highly readable function:
  * `filter` (to filter specific obervations in the rows)
  * `select` (to select specific variables in the columns, if needed)
  * `mutate` (to calculate new variables in a new column)
  * `summarise`(to summarise many observations into one value, e.g. `mean(...)`)
  * `arrange` (to bring the observations of the `data_frame` in a specific order)
  * and others like: `top_n()`,`count()`,`tally()`, `slice()`,...
+ 
+ And the pipe `%>%` to pass the output to the next part of the function (Pipe read as *then*).
  
  <https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf>
  
