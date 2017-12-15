@@ -1,4 +1,4 @@
-# Data Course (2018)
+# Course: Data storage | Data collection | Data management (2017/2018)
 
 ## Background
 Collection of all R functions to calculate the indices from the paper: 
