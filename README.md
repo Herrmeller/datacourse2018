@@ -7,4 +7,4 @@
 ## Requirements
 
 ## Exercise
-![ex1](Exercise_Index.md "Exercise: Climate Indices and R function")
+![Exercise_Index.md](Exercise_Index.md "Exercise: Climate Indices and R function")
