@@ -1,5 +1,7 @@
 # Course: Data storage | Data collection | Data management (2017/2018)
 
+Back to main page [Main](README.md)
+
 ## Background
 Collection of all R functions to calculate the indices from the paper: 
 
