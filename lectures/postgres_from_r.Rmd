@@ -1,6 +1,9 @@
 ---
 title: "R - Postgres Tutorial"
-output: html_notebook
+author: "Mirko Mälicke"
+output:
+  html_notebook: default
+  html_document: default
 ---
 #### Install the package
 
@@ -17,7 +20,7 @@ require(RPostgreSQL)
 
 ### Connection 
 
-RPostgreSQL is build like most other database drivers, across languages. This means in most cases it does not matter which kind of RDBMS you want to connect to and from which language. Connecting to PostgreSQL from R works a lot like connecting SQLite from Pyhton or MySQL from C++. First, you need a driver. This class instance defines the database system you want to talk to and is meant to be a layer between your abstract R classes and the RDBMS specific SQL code. This driver can then be used to build a connection object to a specific database instance (like the one we will be using). Changing the connection to another instance will enable you to run the exact same code on more than one machine. After you are finished, the connection has to be closed again, in order to free these resources on the server. ddd
+RPostgreSQL is build like most other database drivers, across languages. This means in most cases it does not matter which kind of RDBMS you want to connect to and from which language. Connecting to PostgreSQL from R works a lot like connecting SQLite from Pyhton or MySQL from C++. First, you need a driver. This class instance defines the database system you want to talk to and is meant to be a layer between your abstract R classes and the RDBMS specific SQL code. This driver can then be used to build a connection object to a specific database instance (like the one we will be using). Changing the connection to another instance will enable you to run the exact same code on more than one machine. After you are finished, the connection has to be closed again, in order to free these resources on the server.
 
 ```{r}
 drv <- dbDriver('PostgreSQL')

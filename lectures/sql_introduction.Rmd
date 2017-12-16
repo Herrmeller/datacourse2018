@@ -1,6 +1,9 @@
 ---
 title: "Introduction to SQL"
-output: html_notebook
+author: "Mirko Mälicke"
+output:
+  html_notebook: default
+  html_document: default
 ---
 
 This notebook will focus on the SQL language. Most code will be run in SQL chunks, therefore you will need RStudio to view this material.
@@ -58,5 +61,36 @@ WHERE "name"='Freiburg'.<br> The opposite usage will not work.</div>
 
 ### Selecting data
 
-The select is the most important operation for us, as we usually have complex structured data in the database and need very specific subsets of that data for analysis. 
+The select is the most important operation for us, as we usually have complex structured data in the database and need very specific subsets of that data for analysis. Another powerful data extraction tool is the database ability to rapidly order data and limit the output.
+
+```{sql connection=con}
+select name from stations order by elev desc limit 5
+```
+
+```{sql connection=con}
+select name from stations order by elev asc limit 5
+```
+This will give us the five stations with the highest elevation.<br>
+Databases are not only good at comparing filter to values, but also in searching the values itself. You can use the percentage sign in PostgreSQL as a placeholder for _any sign_. Instead for searching for an exact match, we can filter by a _string alike_.
+
+```{sql connection=con}
+select name, elev from stations where name like 'F%'
+```
+
+These are all stations starting with <span style="color: darkred">'F'</span>, while:
+
+```{sql connection=con}
+select name, elev from stations where name like '%burg%'
+```
+
+will return anything that has a <span style="color: darkred">'burg'</span> somewhere in the name.
+
+
+#### cleanup
+
+```{r}
+dbDisconnect(con)
+```
+
+
 
