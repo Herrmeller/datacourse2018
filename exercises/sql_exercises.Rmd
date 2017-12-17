@@ -1,0 +1,63 @@
+---
+title: "SQL Exercises"
+output: html_notebook
+---
+
+This notebook collects some basic SQL exercises for the sql_introduction.Rmd lecture. You can solve them and create a pull request for your soultion in the master Github branch.
+
+```{r, include=FALSE}
+# require the package
+if (!("RPostgreSQL" %in% installed.packages())){
+  install.packages("RPostgreSQL")
+}
+require(RPostgreSQL)
+
+# establish the connection
+drv <- dbDriver('PostgreSQL')
+con <- dbConnect(drv, host='openhydro.de', port=5432, user=.rs.askForPassword('Provide the user'), 
+                 password=.rs.askForPassword('Provide the password'), dbname='dwd')
+```
+
+
+### SELECT
+
+Select all stations located lower than 400 meter.
+```{sql connection=con}
+
+```
+
+How many stations start with the letter 'W'?
+```{sql connection=con}
+
+```
+
+Are there more stations starting with 'M' or 'W'?
+```{sql connection=con}
+
+```
+
+Are the 'M' or the 'W' stations higher in mean?
+```{sql connection=con}
+
+```
+
+### SELECT & Grouping
+
+Find the 5 starting letters in station names with the most occurences.
+```{sql connection=con}
+
+```
+
+Find the 10 starting letters in station names with the lowest mean elevation.
+```{sql connection=con}
+
+```
+
+ 
+
+
+### cleanup
+```{r, include=FALSE}
+dbDisconnect(con)
+```
+

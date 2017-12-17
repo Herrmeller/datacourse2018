@@ -1,0 +1,126 @@
+---
+title: "Introduction to SQL"
+author: "Mirko Mälicke"
+output:
+  html_notebook: default
+  html_document: default
+---
+
+This notebook will focus on the SQL language. Most code will be run in SQL chunks, therefore you will need RStudio to view this material.
+The cunk below will require all dependencies and establish the connection to the database.
+
+```{r}
+# require the package
+if (!("RPostgreSQL" %in% installed.packages())){
+  install.packages("RPostgreSQL")
+}
+require(RPostgreSQL)
+
+# establish the connection
+drv <- dbDriver('PostgreSQL')
+con <- dbConnect(drv, host='openhydro.de', port=5432, user=.rs.askForPassword('Provide the user'), 
+                 password=.rs.askForPassword('Provide the password'), dbname='dwd')
+```
+
+### SQL language
+
+The SQL is defined to be a own name but is more often referred to as a abbreviation of **S**tandard **Q**uery **L**anguage. (Which is officially not correct.) 
+The SQL language is a very structured but yet unflexible language. Unlike R, you have to exactly specify what and how you want to manipulate or query data in the system. Trail-and-Error like invoking and calling of function won't yield any success in most cases. 
+You can use SQL for all kinds of database-related work. You can define the structure of the database, the data types used or constrains your data has to fit using SQL. 
+At the same time, you push and pull data from and to the database, can change the data or calculate new values using SQL. 
+Whenever you are able to perform a operation in the database itself instead of loading raw data to a front-end like R and then operating on it, you will have a much better performance in most cases. 
+This is especially true for data operations like aggregations which usually tend to decrease the data density. Remind that your internet connection will be the bottleneck in noumerous calculations.<br>
+Another advantage is the regularization of the SQL language. There are literally dozens of different database systems. 
+Only from the world of relational database systems there is MySQL, PostgreSQL, SQLite, MSSQL or Oracle to name just the most common ones. Each of this systems understands a *SQL standard* and a *SQL accent*. The standard is a subset of defined functions and keywords that each and any database system does understand. This means by learning SQL once you will be able to operate on many different systems. 
+Theoretically. In practice, these standards are very restrictive and the real power of each system lays in its accent. This
+is a extension to a SQL standard, which is specific to each database management system and often enough also RDBMS version. 
+Therefore, learning SQL for PostgreSQL will help you to learn other systems, but unfortunatelly not prevent you from learning other accents.
+
+### SQL Query
+
+Any execution command pushed to the database system is called a query. This does not necessarily mean that you are actually *querying*, i.e. asking for data. The command for deleting a whole table is also called a query.
+Usually you define the basic **Operation**, followed by the **Entitiy** to operate on, the specified optional **Parameters** how to run the operation and a **Filter** statement which data points shall be affected. Additionally, a **grouping** and a **sorting** can be appended to data queries. 
+The four most important database operations are <span style="color:blue">SELECT</span>, <span style="color:blue">INSERT</span>, <span style="color:blue">UPDATE</span> and <span style="color:blue">DELETE</span>. The main entities we will be focusing on are tables, columns and constrains. The only filter we will use is the so called <span style="color:blue">WHERE</span>-clause. <br>
+Now, let's start with the 'Hello World!' example of the database world: select all rows (datasets) from one table (entity).
+
+```{sql connection=con}
+SELECT * FROM stations
+```
+
+The '\*' means _all_ here. So instead of writing down all single columns we want to load, we can use the star. In the databse language a column is also called an *attribute*, that has different *values* for each dataset. 
+As the stations table has an attribute 'elev' holding the elevation value for each dataset, we can now filter the table for stations above 400 meter elevation by using a where clause. Additionally we will only ask for the name and the elevation attribute.
+
+```{sql connection=con}
+select name, elev from stations where elevation > 400
+```
+
+As you can see, SQL is not case-sensitive. But it is convention to write SQL keyword all UPPERCASE and entities, columns and properties lowercase, although the queries still work if you do not stick to that. THe only exception is PostgreSQL, which will not accept uppercase entity names. These would have to be quoted though. 
+
+<div class="alert alert-warning">**CAUTION:** Unlike R, SQL makes a difference between single and double quotes. Single quotes are used for values in strings, texts and character chains, while double quotes are used for quoting entity names. E.g.:<br>
+WHERE "name"='Freiburg'.<br> The opposite usage will not work.</div>
+
+### Selecting data
+
+The select is the most important operation for us, as we usually have complex structured data in the database and need very specific subsets of that data for analysis. Another powerful data extraction tool is the database ability to rapidly order data and limit the output.
+
+```{sql connection=con}
+select name from stations order by elevation desc limit 5
+```
+
+```{sql connection=con}
+select name from stations order by elevation asc limit 5
+```
+This will give us the five stations with the highest elevation.<br>
+Databases are not only good at comparing filter to values, but also in searching the values itself. You can use the percentage sign in PostgreSQL as a placeholder for _any sign_. Instead for searching for an exact match, we can filter by a _string alike_.
+
+```{sql connection=con}
+select name, elevation from stations where name like 'F%'
+```
+
+These are all stations starting with <span style="color: darkred">'F'</span>, while:
+
+```{sql connection=con}
+select name, elevation from stations where name like '%burg%'
+```
+
+will return anything that has a <span style="color: darkred">'burg'</span> somewhere in the name.
+
+### Aggregation
+
+The SQL langauage is especially useful when it comes to data aggregation. SQL can not only be used to take over most of the aggregation parts in a data analysis pipeline, it is also useful to decrease the data density before sending it through your internet connection.
+The easiest aggregation is to aggregate a whole table using the function _count_. 
+
+```{sql connection=con}
+select count(*) from stations
+```
+
+This is useful in case you need to know how many datasets are present in a table.<br>
+Nevertheless, this is a quite unique aggregation. Usually you will aggregate in a grouping statement. You will query data, group it 
+by any attribute and any non-grouping attribute has to be aggregated within this group.
+
+```{sql connection=con}
+select name, max(elevation) from stations group by name
+```
+
+As _name_ has only unique values, this aggregation will only find groups of one. <br>
+The group by statement does also work on the result of functions. We can use the _substr_ function to extract the first letter.
+
+```{sql connection=con}
+select substr(name, 1,1) as first_letter, count(name) from stations group by substr(name, 1,1)
+```
+
+This is also equivalent to:
+
+```{sql connection=con}
+select substr(name, 1,1) as first_letter, count(name), max(elevation) as max_elev from stations group by first_letter
+```
+
+
+### cleanup
+
+```{r}
+dbDisconnect(con)
+```
+
+
+
