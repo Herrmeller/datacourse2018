@@ -51,7 +51,7 @@ The '\*' means _all_ here. So instead of writing down all single columns we want
 As the stations table has an attribute 'elev' holding the elevation value for each dataset, we can now filter the table for stations above 400 meter elevation by using a where clause. Additionally we will only ask for the name and the elevation attribute.
 
 ```{sql connection=con}
-select name, elev from stations where elev > 400
+select name, elev from stations where elevation > 400
 ```
 
 As you can see, SQL is not case-sensitive. But it is convention to write SQL keyword all UPPERCASE and entities, columns and properties lowercase, although the queries still work if you do not stick to that. THe only exception is PostgreSQL, which will not accept uppercase entity names. These would have to be quoted though. 
@@ -64,29 +64,59 @@ WHERE "name"='Freiburg'.<br> The opposite usage will not work.</div>
 The select is the most important operation for us, as we usually have complex structured data in the database and need very specific subsets of that data for analysis. Another powerful data extraction tool is the database ability to rapidly order data and limit the output.
 
 ```{sql connection=con}
-select name from stations order by elev desc limit 5
+select name from stations order by elevation desc limit 5
 ```
 
 ```{sql connection=con}
-select name from stations order by elev asc limit 5
+select name from stations order by elevation asc limit 5
 ```
 This will give us the five stations with the highest elevation.<br>
 Databases are not only good at comparing filter to values, but also in searching the values itself. You can use the percentage sign in PostgreSQL as a placeholder for _any sign_. Instead for searching for an exact match, we can filter by a _string alike_.
 
 ```{sql connection=con}
-select name, elev from stations where name like 'F%'
+select name, elevation from stations where name like 'F%'
 ```
 
 These are all stations starting with <span style="color: darkred">'F'</span>, while:
 
 ```{sql connection=con}
-select name, elev from stations where name like '%burg%'
+select name, elevation from stations where name like '%burg%'
 ```
 
 will return anything that has a <span style="color: darkred">'burg'</span> somewhere in the name.
 
+### Aggregation
 
-#### cleanup
+The SQL langauage is especially useful when it comes to data aggregation. SQL can not only be used to take over most of the aggregation parts in a data analysis pipeline, it is also useful to decrease the data density before sending it through your internet connection.
+The easiest aggregation is to aggregate a whole table using the function _count_. 
+
+```{sql connection=con}
+select count(*) from stations
+```
+
+This is useful in case you need to know how many datasets are present in a table.<br>
+Nevertheless, this is a quite unique aggregation. Usually you will aggregate in a grouping statement. You will query data, group it 
+by any attribute and any non-grouping attribute has to be aggregated within this group.
+
+```{sql connection=con}
+select name, max(elevation) from stations group by name
+```
+
+As _name_ has only unique values, this aggregation will only find groups of one. <br>
+The group by statement does also work on the result of functions. We can use the _substr_ function to extract the first letter.
+
+```{sql connection=con}
+select substr(name, 1,1) as first_letter, count(name) from stations group by substr(name, 1,1)
+```
+
+This is also equivalent to:
+
+```{sql connection=con}
+select substr(name, 1,1) as first_letter, count(name), max(elevation) as max_elev from stations group by first_letter
+```
+
+
+### cleanup
 
 ```{r}
 dbDisconnect(con)
