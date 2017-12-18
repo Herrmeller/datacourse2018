@@ -2,8 +2,14 @@
 title: "R - Postgres Tutorial"
 author: "Mirko Mälicke"
 output:
-  html_notebook: default
-  html_document: default
+  html_document: 
+    toc: yes
+    theme: flatly
+  html_notebook:
+    toc: yes
+    theme: flatly
+  pdf_document:
+    toc: yes
 ---
 #### Install the package
 
@@ -11,11 +17,15 @@ You can manipulate and query a [PostgreSQL](https://www.postgresql.org/) databas
 At the same time, PostgreSQL can be tuned to be a high performance database system, which makes it extemely help- and powerful for hydrologists as we have both: geodata and huge (complex) data amounts. Last but not least, PostGIS is working very well with QGis, GRASS or SAGA GIS and some GIS Web Servers like Geoserver or Mapserver. This makes the R / Python - PostgreSQL - Online/Offline GIS stack maybe the most powerful software stack for (geo)data science.<br>
 First, install and load the library.
 
-```{r}
+```{r, echo=FALSE}
 if (!("RPostgreSQL" %in% installed.packages())){
   install.packages("RPostgreSQL")
 }
+if (!("getPass" %in% installed.packages())){
+  install.packages("getPass")
+}
 require(RPostgreSQL)
+require(getPass)
 ```
 
 ### Connection 
@@ -24,8 +34,8 @@ RPostgreSQL is build like most other database drivers, across languages. This me
 
 ```{r}
 drv <- dbDriver('PostgreSQL')
-con <- dbConnect(drv, host='openhydro.de', port=5432, user=.rs.askForPassword('Provide the user'), 
-                 password=.rs.askForPassword('Provide the password'), dbname='dwd')
+con <- dbConnect(drv, host='openhydro.de', port=5432, user=getPass('Provide the user'), 
+                 password=getPass('Provide the password'), dbname='dwd')
 
 ```
 
