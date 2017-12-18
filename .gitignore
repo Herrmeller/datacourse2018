@@ -1,4 +1,9 @@
+# Some RStudio stuff
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
+.RProj
+
+# other IDE files
+.idea
