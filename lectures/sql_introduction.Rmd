@@ -2,24 +2,34 @@
 title: "Introduction to SQL"
 author: "Mirko Mälicke"
 output:
-  html_notebook: default
-  html_document: default
+  html_document: 
+    toc: yes
+    theme: flatly
+  html_notebook:
+    toc: yes
+    theme: flatly
+  pdf_document:
+    toc: yes
 ---
 
 This notebook will focus on the SQL language. Most code will be run in SQL chunks, therefore you will need RStudio to view this material.
 The cunk below will require all dependencies and establish the connection to the database.
 
-```{r}
+```{r, echo=FALSE}
 # require the package
 if (!("RPostgreSQL" %in% installed.packages())){
   install.packages("RPostgreSQL")
 }
+if (!("getPass" %in% installed.packages())){
+  install.packages("getPass")
+}
 require(RPostgreSQL)
+require(getPass)
 
 # establish the connection
 drv <- dbDriver('PostgreSQL')
-con <- dbConnect(drv, host='openhydro.de', port=5432, user=.rs.askForPassword('Provide the user'), 
-                 password=.rs.askForPassword('Provide the password'), dbname='dwd')
+con <- dbConnect(drv, host='openhydro.de', port=5432, user=getPass('Provide the user'), 
+                 password=getPass('Provide the password'), dbname='dwd')
 ```
 
 ### SQL language
@@ -51,7 +61,7 @@ The '\*' means _all_ here. So instead of writing down all single columns we want
 As the stations table has an attribute 'elev' holding the elevation value for each dataset, we can now filter the table for stations above 400 meter elevation by using a where clause. Additionally we will only ask for the name and the elevation attribute.
 
 ```{sql connection=con}
-select name, elev from stations where elevation > 400
+select name, elevation from stations where elevation > 400
 ```
 
 As you can see, SQL is not case-sensitive. But it is convention to write SQL keyword all UPPERCASE and entities, columns and properties lowercase, although the queries still work if you do not stick to that. THe only exception is PostgreSQL, which will not accept uppercase entity names. These would have to be quoted though. 
@@ -113,6 +123,57 @@ This is also equivalent to:
 
 ```{sql connection=con}
 select substr(name, 1,1) as first_letter, count(name), max(elevation) as max_elev from stations group by first_letter
+```
+
+### Unique values & UNIONS
+
+A very powerful feature is SQL's ability to select values only once from a table. In SQL words we <span style="color: blue">SELECT DISTINCT</span>. Let's try this on a different table.
+```{sql connection=con}
+select * from vegetation_cover limit 5
+```
+
+The description_id seems to be repetitive. We can verify this by counting the overall rows and counting the distinct descriptions_id's.
+This time we will <span style="color: blue">UNION</span> both queries together into one. This operation can be compared to R's _rbind_ command. Just alike, the attributes (columns) have to match.
+
+```{sql connection=con}
+select 'Overall description_ids' as description, count(id) as amount from vegetation_cover 
+union
+select 'Distinct description_ids' as description, count(distinct description_id) as amount from vegetation_cover  
+```
+
+You can also put the <span style="color: blue">DISTINCT</span> directly after the <span style="color: blue">SELECT</span> in order to apply the distinction to every row. This way we can query the 9 distinct values.
+
+```{sql connection=con}
+select distinct description_id from vegetation_cover
+```
+
+### Joins
+
+The one feature making PostgreSQL actually an _relational_ database system is the fact that, technically, there are no duplicates in any table. Tha means each row (or _relation_) has an unique identifier. This is called the **primary key**. 
+For vegetation cover, this is the _id_ attribute. There is also a table called *vegetation_cover_description*. THis one has also an primary key called _id_.
+
+```{sql connection=con}
+select * from vegetation_cover_description limit 3
+```
+
+DO ou know these numbers?
+
+```{r}
+vegcov.description_ids <- dbGetQuery(con, 'select distinct description_id from vegetation_cover order by description_id')
+vegcov_description.ids <- dbGetQuery(con, 'select distinct id from vegetation_cover_description order by id')
+
+vegcov_description.ids==vegcov.description_ids
+```
+
+In fact: any description_id in vegetation_cover does occur as id in vegetation_cover_description. This is because the vegetation_cover_description table further describes a relation in vegetation_cover with attribute(s) that might be repetitive in vegetation_cover. That is what you would call a _lookup table_. The description_id in vegetation cover is called a _Foreign key_ to vegetation_cover_description as it references a foreign primary key. 
+This technique descreases the table size, increases performance and makes the maintainance way easier. 
+On the other hand, it makes queries more complicated. The <span style="color: blue">JOIN</span> command can be used to utilize this connection.
+
+```{sql connection=con, echo=TRUE}
+select v.id, d.name from vegetation_cover as v
+  join vegetation_cover_description as d
+  on d.id=v.description_id
+limit 10
 ```
 
 

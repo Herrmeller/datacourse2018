@@ -53,7 +53,18 @@ Find the 10 starting letters in station names with the lowest mean elevation.
 
 ```
 
- 
+You also learned about the vegetation_cover table. The *description_id* attribute was highly repetitive. But how does the distribution look like between these labels? Count the occurences per description_id.
+
+```{sql connection=con}
+
+```
+
+Group the vegetation_cover table by the name in vegetation_cover_description and count the instances per label.
+
+```{sql connection=con}
+
+```
+
 
 
 ### cleanup
