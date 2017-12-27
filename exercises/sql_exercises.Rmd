@@ -1,5 +1,6 @@
 ---
 title: "SQL Exercises"
+author: "Mirko Mälicke"
 output: html_notebook
 ---
 
@@ -11,11 +12,16 @@ if (!("RPostgreSQL" %in% installed.packages())){
   install.packages("RPostgreSQL")
 }
 require(RPostgreSQL)
+if (!("getPass" %in% installed.packages())){
+  install.packages("getPass")
+}
+require(RPostgreSQL)
+require(getPass)
 
 # establish the connection
 drv <- dbDriver('PostgreSQL')
-con <- dbConnect(drv, host='openhydro.de', port=5432, user=.rs.askForPassword('Provide the user'), 
-                 password=.rs.askForPassword('Provide the password'), dbname='dwd')
+con <- dbConnect(drv, host='openhydro.de', port=5432, user=getPass('Provide the user'), 
+                 password=getPass('Provide the password'), dbname='dwd')
 ```
 
 

@@ -1,0 +1,51 @@
+---
+title: "Advanced SQL techniques"
+author: "Mirko Mälicke"
+output:
+  html_document: 
+    toc: yes
+    theme: flatly
+  html_notebook:
+    toc: yes
+    theme: flatly
+  pdf_document:
+    toc: yes
+---
+
+```{r, echo=FALSE}
+# require the package
+if (!("RPostgreSQL" %in% installed.packages())){
+  install.packages("RPostgreSQL")
+}
+if (!("getPass" %in% installed.packages())){
+  install.packages("getPass")
+}
+require(RPostgreSQL)
+require(getPass)
+
+# establish the connection
+drv <- dbDriver('PostgreSQL')
+con <- dbConnect(drv, host='openhydro.de', port=5432, user=getPass('Provide the user'), 
+                 password=getPass('Provide the password'), dbname='dwd')
+```
+
+### Temporarily creating objects
+
+Especially for development and data analysis tasks it is very useful to create temporary results. This saves a lot of time and will keep
+ your database clean as you do not have to remember which objects were only intermediate and can be droped.
+The SQL language knows the <span style="color:blue">TEMPORARY</span> keyword, which can be used along with <span style="color:blue">CREATE</span> statements. 
+This is most often used on the creation of tables and views. The temporary tables can be used just like persistent tables, but once you close the 
+connection used for creation, the table will automatically be droped. 
+This can save you from a lot of cleanup work. 
+
+<div class="alert alert-warning">Some SQL clients open and close a connection on each command issued in order to keep the number of connection small and
+prevent the user from keeping open connections. You will have to </div>
+
+
+
+### cleanup
+
+```{r}
+dbDisconnect(con)
+```
+

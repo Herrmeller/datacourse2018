@@ -7,3 +7,6 @@
 
 # other IDE files
 .idea
+
+# ignore the nb.html preview files
+.nb.html
