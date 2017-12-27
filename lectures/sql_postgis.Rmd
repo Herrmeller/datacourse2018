@@ -1,0 +1,107 @@
+---
+title: "PostGIS"
+author: "Mirko Mälicke"
+output:
+  html_document: 
+    toc: yes
+    theme: flatly
+  html_notebook:
+    toc: yes
+    theme: flatly
+  pdf_document:
+    toc: yes
+---
+
+```{r, echo=FALSE}
+# require the package
+if (!("RPostgreSQL" %in% installed.packages())){
+  install.packages("RPostgreSQL")
+}
+if (!("getPass" %in% installed.packages())){
+  install.packages("getPass")
+}
+require(RPostgreSQL)
+require(getPass)
+require(ggplot2)
+
+# establish the connection
+drv <- dbDriver('PostgreSQL')
+con <- dbConnect(drv, host='openhydro.de', port=5432, user=getPass('Provide the user'), 
+                 password=getPass('Provide the password'), dbname='dwd')
+```
+
+### PostGIS
+
+PostGIS is a PostgreSQL extension that offers several new datatypes for attribute declaration along with over 1000 predefined functions.
+The main new data type is called 'GEOMETRY' and can store any kind of OGR defined geometry object. 
+The most important ones are the 'Point', 'Line' or 'LineString' and 'Polygon' geometry. A new table 'spatial_ref_sys' also created on 
+PostGIS creation is prefilled with thousands of different CRS definitions. 
+The functions can be used for any kind of spatial and geometrical manipulation and query as known from GIS systems. In fact, 
+the PostgreSQL / PostGIS system is a full featured GIS system. <br>
+CRS are stored in an ordinary table and can be queried just like you did it in the other lectures:
+
+```{sql connection=con}
+select * from spatial_ref_sys limit 5
+```
+
+This looks quite simple. There is a srid, the primary key, which you should already know. The creators of PostGIS used the EPSG number 
+as primary key. This is very handy as the ESPG identifiers are already unique. (and well known.)<br>
+The _proj4text_ field stores the CRS definition as a Poj4 string. This can be understood by most GIS system, like QGis, and recreate 
+missing or custom CRS. The _srtext_ field stores the WKT (well known text) definition of the CRS. This could be used to build the CRS 
+by hand in other programming languages like Python, Perl or C++. <br>
+Ok, then let's see if all coordinate systems we might need are there:
+<ul>
+<li>unprojected WGS84, as kown from google maps</li>
+<li>Pseudo Mercartor, as used by openstreetmap</li>
+<li>DHDN, Gauß Krüger Z3, the old offical CRS in Baden-Württemberg</li>
+<li>ETRS89 / UTM Z43N, new new official CRS in Baden-Württemberg</li>
+</ul>
+
+### cleanup
+```{sql connection=con}
+select * from spatial_ref_sys where srid in (4326, 3857, 31467, 25832)
+```
+
+### working on spatial data
+
+You might have recognized, that RStudio is complaining about a not known datatype when querying the stations table from the database.
+This is due to the GEOMETRY data type, we introduced earlier. This is not known by the r package RPostgreSQL. Unlike Python, there 
+is no easy way to make R or RStudio understand this datatype. Therefore, we will always have to load the geometries in the WKT format
+and convert it in R back to a binary spatial object as supported by the R packages you prefer.<br>
+This is where the PostGIS funcitons set in. We can use any of them in <span style="color:blue">SELECT</span> statements or 
+<span style="color:blue">WHERE</span> filters. In case you are familiar with the GDAL C++ or Python package, GRASS gis or any other command line based GIS solution, most of the PostGIS functions will be quite familiar to you. Otherwise you will have to search the 
+documentation for the correct funciton names and usages.<br>
+The WKT of any GEOMETRY object can be loaded with the *ST_AsEWKT* function:
+
+```{sql connection=con}
+select id, name, st_asewkt(geometry) from stations limit 5
+```
+
+We can see two things here: First, we are able to read the coordinates now. Second, the raw WKT geometry information is prefixed by
+an iformation on the used CRS. This is a special PostGIS definition that might not be understood by all other GIS systems. 
+The advantage is the ability of the system to store the geometry and CRS information in only one attribute. This also means, that
+there is no need to connect this table to the spatial_ref_sys table anymore. We could transform these coordinates on select.
+
+```{sql connection=con}
+select id, name, st_asewkt(geometry) as "UTM", st_asewkt(st_transform(geometry, 4326)) as "WGS84" from stations limit 5
+```
+
+From here, we have several options to put the geometry information into a more usable format for R. We either load a package that can read WKT. Secondly, we could parse the Strings and extract the needed information ourselves or we could query the information in a
+more readable format for R. 
+
+<div class="alert alert-warning">Other languages like Python offer way more powerful bindings to databases. The SQLAlchemy and geoalchemy2 packages in Python, which are available in most scientific Python environments, can load, plot and manipulate PostGIS geometries out of the box.</div>
+
+```{sql connection=con, output.var="stations"}
+select id, name, st_x(geometry) as lon, st_y(geometry) as lat from stations
+```
+```{r}
+ggplot(stations, aes(x="lon", y="lat")) + geom_point(shape=1) 
+```
+
+
+
+```{r}
+dbDisconnect(con)
+```
+
+
