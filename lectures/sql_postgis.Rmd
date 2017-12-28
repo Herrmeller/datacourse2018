@@ -57,12 +57,11 @@ Ok, then let's see if all coordinate systems we might need are there:
 <li>ETRS89 / UTM Z43N, new new official CRS in Baden-Württemberg</li>
 </ul>
 
-### cleanup
 ```{sql connection=con}
 select * from spatial_ref_sys where srid in (4326, 3857, 31467, 25832)
 ```
 
-### working on spatial data
+### Loading spatial data to R
 
 You might have recognized, that RStudio is complaining about a not known datatype when querying the stations table from the database.
 This is due to the GEOMETRY data type, we introduced earlier. This is not known by the r package RPostgreSQL. Unlike Python, there 
@@ -92,14 +91,30 @@ more readable format for R.
 <div class="alert alert-warning">Other languages like Python offer way more powerful bindings to databases. The SQLAlchemy and geoalchemy2 packages in Python, which are available in most scientific Python environments, can load, plot and manipulate PostGIS geometries out of the box.</div>
 
 ```{sql connection=con, output.var="stations"}
-select id, name, st_x(geometry) as lon, st_y(geometry) as lat from stations
+select id, name, st_x(geometry) as lon, st_y(geometry) as lat from stations where geometry is not null
 ```
 ```{r}
-ggplot(stations, aes(x="lon", y="lat")) + geom_point(shape=1) 
+ggplot(stations, aes(x=lon, y=lat)) + geom_point(shape=18)
+```
+
+### Spatial functions
+
+One of the most important spatial funcitons is PostGIS ability to transform coordinates from and into any coordinate system defined in 
+the spatial_ref_sys table. This is extremly helpful, when we want to combine our data with external datasources that force a specific CRS. Secondly, when applying spatial functions and calculating relations, distances or areas we must not use a not suitable CRS 
+in order to prevent big calculation mistakes.<br>
+PostGIS knows two helpful functions: *ST_Transform* for applying a transformation and *ST_SetCRS* for setting the CRS information in 
+case they are missing in the GEOMETRY object.
+
+```{sql connection=con, output.var="stations.wgs84"}
+select id, name, st_x(st_transform(geometry, 4326)) as lon, st_y(st_transform(geometry, 4326)) as lat 
+  from stations where geometry is not null
+```
+```{r}
+ggplot(stations.wgs84, aes(x=lon, y=lat)) + geom_point(shape=18)
 ```
 
 
-
+### cleanup
 ```{r}
 dbDisconnect(con)
 ```
