@@ -1,0 +1,83 @@
+---
+title: "PostGIS"
+author: "Mirko Mälicke"
+output:
+  html_document: 
+    toc: yes
+    theme: flatly
+  html_notebook:
+    toc: yes
+    theme: flatly
+  pdf_document:
+    toc: yes
+---
+
+```{r, echo=FALSE}
+# require the package
+if (!("RPostgreSQL" %in% installed.packages())){
+  install.packages("RPostgreSQL")
+}
+if (!("getPass" %in% installed.packages())){
+  install.packages("getPass")
+}
+require(RPostgreSQL)
+require(getPass)
+require(ggplot2)
+
+# establish the connection
+drv <- dbDriver('PostgreSQL')
+con <- dbConnect(drv, host='openhydro.de', port=5432, user=getPass('Provide the user'), 
+                 password=getPass('Provide the password'), dbname='dwd')
+```
+
+Select the biggest catchment from the einzugsgebiete table.
+```{sql connection=con}
+
+```
+
+Select the biggest catchment from the einzugsgebiete table, whichs' name starts with an 'S'.
+```{sql connection=con}
+
+```
+
+Select the smallest catchment fron the einzugsgebiete table, which contains a station.
+```{sql connection=con}
+
+```
+
+Select the two stations which are closest / farest away from your own location in a single <span style="color:blue">UNION</span> statement.
+```{sql connection=con}
+
+```
+
+In a new project, you would like to build a new weather station either close to the Herderbau or near the Münster in Freiburg. You decide to chose the 
+location which has less other stations in a 1.5 km radius
+```{sql connection=con}
+
+```
+
+In class, you joined the vegetation class table with its lookup table and calculated the areas for each feature. As you might have noticed, there are duplicates in the description field. 
+This is obviously the reason why a lookup table was used. Aggregate these classes together and calculate the overall area for each cover class.
+```{sql connection=con}
+
+```
+
+Redo the last step but query the data with nice looking values like '34.1 km²' for the area and add a ratio field, which should give the share of each class on the total area in a '20.1%' style.
+```{sql connection=con}
+
+```
+
+Do the einzugsgebiete and vegetation_cover tables cover the same area?
+```{sql connection=con}
+
+```
+
+
+
+
+### cleanup
+
+```{r}
+dbDisconnect(con)
+```
+
