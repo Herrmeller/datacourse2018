@@ -97,7 +97,7 @@ select id, name, st_x(geometry) as lon, st_y(geometry) as lat from stations wher
 ggplot(stations, aes(x=lon, y=lat)) + geom_point(shape=18)
 ```
 
-### Spatial functions
+### Enabling spatial functions
 
 One of the most important spatial funcitons is PostGIS ability to transform coordinates from and into any coordinate system defined in 
 the spatial_ref_sys table. This is extremly helpful, when we want to combine our data with external datasources that force a specific CRS. Secondly, when applying spatial functions and calculating relations, distances or areas we must not use a not suitable CRS 
@@ -113,6 +113,77 @@ select id, name, st_x(st_transform(geometry, 4326)) as lon, st_y(st_transform(ge
 ggplot(stations.wgs84, aes(x=lon, y=lat)) + geom_point(shape=18)
 ```
 
+It is also possible to calculate distances in the database. Once calculated, these distance can be used like any other attribute, this 
+means you can also sort or group by distances. Knowing this, it is for example easy to find the next station for a specific one, or
+any arbitraty location.<br>
+Let's find the Freiburg stations and search the database for the the closest and farest feature.
+
+```{sql connection=con}
+select * from stations where name like '%Freiburg%'
+```
+```{sql connection=con}
+select 
+  st_distance(geometry, (select geometry from stations where id=1443)) as distance, 
+  * 
+from stations 
+where id!=1443 and geometry is not null 
+order by distance ASC
+```
+```{sql connection=con}
+select 'closest' as description, id, name, distance / 1000 as "distance [km]" from 
+(select  st_distance(geometry, (select geometry from stations where id=1443)) as distance, id, name from stations 
+where id!=1443 and geometry is not null 
+order by distance ASC limit 1) t1
+union
+select 'farest' as description, id, name, distance / 1000 as "distance [km]" from
+(select st_distance(geometry, (select geometry from stations where id=1443)) as distance, id, name from stations 
+where id!=1443 and geometry is not null 
+order by distance DESC limit 1) t2
+
+```
+
+It is also possible to subset the table and filter the stations to be within a specific distance to the Freiburg station (e.g. 25km).
+
+```{sql connection=con}
+select id, name from stations where st_distance(geometry, (select geometry from stations where id=1443)) <= 25000
+```
+```{sql connection=con}
+select id, name from stations where st_within(geometry, st_buffer((select geometry from stations where id=1443), 25000))
+```
+
+These two solutions lead to an identical solution, but there is yet happening something very different. It is very good to have different ways of calculating the same result. 
+The way PostgreSQL will find the selected features can be described as a query plan. This is esentially, what the computer is planning to do and, more important, why it came to these decisions. Therefore it is a very helpful tool to be able to print out these query plans when trying to identify dropping performances. 
+Another helpful information of a query plan is the total runtime on the machine. This does not include the time the data needs to be 
+transferred to your computer and the time a client application needs to visualize the data, which is usually the bottleneck but has 
+nothing to do with the actual database performance.<br>
+In PostgreSQL you can prefix any <span style="color:blue">SELECT</span> statement with <span style="color:blue">EXPLAIN ANALYZE</span>
+to make Postgres print out the query plan instead of the results.
+
+```{sql connection=con}
+explain analyze select id, name from stations where st_distance(geometry, (select geometry from stations where id=1443)) <= 25000
+```
+```{sql connection=con}
+explain analyze select id, name from stations where st_within(geometry, st_buffer((select geometry from stations where id=1443), 25000))
+```
+
+### GIS in the database
+
+The database includes several tables containing data uploaded from the WaBoA (Wasser- und Bodenatlas Baden-Württemberg). 
+This is a major source for geodata in the region used by hydrologists quite frequently. Among others, you will find a table called
+_vegetation_ cover there. Let's have a look on that table.
+
+```{sql connection=con}
+select * from vegetation_cover limit 5
+```
+
+The description_id seems to be a foreign key on a lookup table. To get a better insight, join the two tables and load the geometry 
+in a human readable way.
+
+```{sql connection=con}
+select vc.id, d.name, st_asewkt(vc.geometry) from vegetation_cover vc join vegetation_cover_description d on vc.description_id=d.id limit 5
+```
+
+The geometry fields contain Polygons. We could instead use the area.
 
 ### cleanup
 ```{r}
