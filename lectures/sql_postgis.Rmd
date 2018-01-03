@@ -185,6 +185,29 @@ select vc.id, d.name, st_asewkt(vc.geometry) from vegetation_cover vc join veget
 
 The geometry fields contain Polygons. We could instead use the area.
 
+```{sql connection=con}
+select vc.id, d.name, st_area(vc.geometry) from vegetation_cover vc join vegetation_cover_description d on vc.description_id=d.id limit 5
+```
+
+Another table from WaBoA is the catchment table (Einzugfsgebiete). These are all 'official' LUBW catchments. Note that these catchments do overlap, as 
+they are derived on different levels. 
+One thing we could do is join the catchment table to the stations table based on the location. The correct spatial query is a WITHIN or CONTAINS, 
+based on which of both geometries you are querying against.
+
+```{sql connection=con}
+select * from stations s join einzugsgebiete ezg on st_within(s.geometry, ezg.geometry)
+```
+
+If you build your query like this, PostgreSQL will use the first matching feature from the einzugsgebiete table. To verify, that our results are 
+correct, we need to count the instances, that do fulfill the connection conditional.
+
+```{sql connection=con}
+select s.id, s.name, count(ezg.id) from stations s 
+  left outer join einzugsgebiete ezg on st_within(s.geometry, ezg.geometry)
+group by s.id, s.name
+```
+
+
 ### cleanup
 ```{r}
 dbDisconnect(con)
