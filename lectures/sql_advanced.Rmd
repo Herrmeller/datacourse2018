@@ -4,12 +4,16 @@ author: "Mirko Mälicke"
 output:
   html_document: 
     toc: yes
+    toc_float: yes
     theme: flatly
+    df_print: paged
   html_notebook:
+    number_sections: yes
     toc: yes
+    toc_float: yes
     theme: flatly
   pdf_document:
-    toc: yes
+    toc: true
 ---
 
 ```{r, echo=FALSE}
@@ -31,7 +35,7 @@ con <- dbConnect(drv, host='openhydro.de', port=5432, user=getPass('Provide the 
                  password=getPass('Provide the password'), dbname='dwd')
 ```
 
-### Temporarily creating objects
+# Temporarily creating objects
 
 Especially for development and data analysis tasks it is very useful to create temporary results. This saves a lot of time and will keep
  your database clean as you do not have to remember which objects were only intermediate and can be droped.
@@ -130,7 +134,7 @@ And the tables are gone
 'precipitation' %in% dbListTables(con) | 'precipitation_summary' %in% dbListTables(con)
 ```
 
-### cleanup
+# cleanup
 ```{r}
 dbDisconnect(con)
 ```

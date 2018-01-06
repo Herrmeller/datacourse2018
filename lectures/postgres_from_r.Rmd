@@ -2,16 +2,20 @@
 title: "R - Postgres Tutorial"
 author: "Mirko Mälicke"
 output:
+  html_notebook:
+    number_sections: yes
+    toc: yes
+    toc_float: yes
+    theme: flatly
   html_document: 
     toc: yes
+    toc_float: yes
     theme: flatly
-  html_notebook:
-    toc: yes
-    theme: flatly
+    df_print: paged
   pdf_document:
-    toc: yes
+    toc: true
 ---
-#### Install the package
+# Install the packages
 
 You can manipulate and query a [PostgreSQL](https://www.postgresql.org/) database from within R. The Package *RPostgreSQL* offers a high level binding and some helpful querying functions for handling a PostgreSQL instance. This database system is especially helpful in case you want to handle geodata as it includes a full featured GIS system in the extension [PostGIS](http://postgis.net/).
 At the same time, PostgreSQL can be tuned to be a high performance database system, which makes it extemely help- and powerful for hydrologists as we have both: geodata and huge (complex) data amounts. Last but not least, PostGIS is working very well with QGis, GRASS or SAGA GIS and some GIS Web Servers like Geoserver or Mapserver. This makes the R / Python - PostgreSQL - Online/Offline GIS stack maybe the most powerful software stack for (geo)data science.<br>
@@ -28,7 +32,7 @@ require(RPostgreSQL)
 require(getPass)
 ```
 
-### Connection 
+# Connection 
 
 RPostgreSQL is build like most other database drivers, across languages. This means in most cases it does not matter which kind of RDBMS you want to connect to and from which language. Connecting to PostgreSQL from R works a lot like connecting SQLite from Pyhton or MySQL from C++. First, you need a driver. This class instance defines the database system you want to talk to and is meant to be a layer between your abstract R classes and the RDBMS specific SQL code. This driver can then be used to build a connection object to a specific database instance (like the one we will be using). Changing the connection to another instance will enable you to run the exact same code on more than one machine. After you are finished, the connection has to be closed again, in order to free these resources on the server.
 
@@ -48,7 +52,7 @@ From here, RPostgreSQL offers different function for communicating with the Post
   <li>**dbListTables(_connection_)** list all tables in the connected database</li>
 <ul>
 
-### Working with data
+# Working with data
 
 As a first exercise, we want to read the whole station list from the database.
 ```{r}
@@ -64,12 +68,12 @@ stations
 We will head to the unrecognized column later on. At first, let's add a arbitrary station and remove it again. Remember, that you have to preserve the table structure. The most easiest approach is therefore to append a new row to the just created data frame. Ignore the last value for now. Lastly, it is important to set the 'append' flag, in order to append the data to the end of the table.
 
 ```{r}
-import <- data.frame(id=9999, name='Mirkos Station', short_stat='MIRK', elev=2500, geometry="POINT(7.8 48.0)")
+import <- data.frame(id=9999, name='Mirkos Station', elevation=2500, geometry="POINT(7.8 48.0)", description="My dummy station", discipline_id=99, hobo_id=99999)
 names(import) <- names(stations)
 dbWriteTable(con, 'stations', import, append=TRUE, row.names=FALSE)
 ```
 
-### Executing SQL
+# Executing SQL
 
 In order to check, wether our data reached the database, we will create our own custom SQL query to ask the database for exactly that row. We will go into more details of the SQL language in the Introductory SQL notebook. That means you do not have to understand each part of the query at this moment. Concentrate more on the technique of sending queries. As we are asking for data, we cannot use the *dbExecute* method, as this does not fetch possible results. Therefore we have to use the *dbGetQuery* function here, as this one will fetch the results.<br>
 
@@ -101,7 +105,7 @@ This leads to exactly the same result, while we can concentrate on the SQL langu
 delete from stations where id=9999
 ```
 
-### Closing the connection
+# Closing the connection
 
 Do not forget to ALWAYS close the connection. The PostgreSQL Server will limit the number of connections. 
 Moreover, each connection uses some of the system resources and too many connections will unnecessarily slow down the system.

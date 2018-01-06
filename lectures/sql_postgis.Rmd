@@ -4,12 +4,16 @@ author: "Mirko Mälicke"
 output:
   html_document: 
     toc: yes
+    toc_float: yes
     theme: flatly
+    df_print: paged
   html_notebook:
+    number_sections: yes
     toc: yes
+    toc_float: yes
     theme: flatly
   pdf_document:
-    toc: yes
+    toc: true
 ---
 
 ```{r, echo=FALSE}
@@ -30,7 +34,7 @@ con <- dbConnect(drv, host='openhydro.de', port=5432, user=getPass('Provide the 
                  password=getPass('Provide the password'), dbname='dwd')
 ```
 
-### PostGIS
+# PostGIS
 
 PostGIS is a PostgreSQL extension that offers several new datatypes for attribute declaration along with over 1000 predefined functions.
 The main new data type is called 'GEOMETRY' and can store any kind of OGR defined geometry object. 
@@ -61,7 +65,7 @@ Ok, then let's see if all coordinate systems we might need are there:
 select * from spatial_ref_sys where srid in (4326, 3857, 31467, 25832)
 ```
 
-### Loading spatial data to R
+# Loading spatial data to R
 
 You might have recognized, that RStudio is complaining about a not known datatype when querying the stations table from the database.
 This is due to the GEOMETRY data type, we introduced earlier. This is not known by the r package RPostgreSQL. Unlike Python, there 
@@ -97,7 +101,7 @@ select id, name, st_x(geometry) as lon, st_y(geometry) as lat from stations wher
 ggplot(stations, aes(x=lon, y=lat)) + geom_point(shape=18)
 ```
 
-### Enabling spatial functions
+# Enabling spatial functions
 
 One of the most important spatial funcitons is PostGIS ability to transform coordinates from and into any coordinate system defined in 
 the spatial_ref_sys table. This is extremly helpful, when we want to combine our data with external datasources that force a specific CRS. Secondly, when applying spatial functions and calculating relations, distances or areas we must not use a not suitable CRS 
@@ -166,7 +170,7 @@ explain analyze select id, name from stations where st_distance(geometry, (selec
 explain analyze select id, name from stations where st_within(geometry, st_buffer((select geometry from stations where id=1443), 25000))
 ```
 
-### GIS in the database
+# GIS in the database
 
 The database includes several tables containing data uploaded from the WaBoA (Wasser- und Bodenatlas Baden-Württemberg). 
 This is a major source for geodata in the region used by hydrologists quite frequently. Among others, you will find a table called
@@ -208,7 +212,7 @@ group by s.id, s.name
 ```
 
 
-### cleanup
+# cleanup
 ```{r}
 dbDisconnect(con)
 ```

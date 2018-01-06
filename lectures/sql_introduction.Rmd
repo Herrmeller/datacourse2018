@@ -4,12 +4,16 @@ author: "Mirko Mälicke"
 output:
   html_document: 
     toc: yes
+    toc_float: yes
     theme: flatly
+    df_print: paged
   html_notebook:
+    number_sections: yes
     toc: yes
+    toc_float: yes
     theme: flatly
   pdf_document:
-    toc: yes
+    toc: true
 ---
 
 This notebook will focus on the SQL language. Most code will be run in SQL chunks, therefore you will need RStudio to view this material.
@@ -32,7 +36,7 @@ con <- dbConnect(drv, host='openhydro.de', port=5432, user=getPass('Provide the 
                  password=getPass('Provide the password'), dbname='dwd')
 ```
 
-### SQL language
+# SQL language
 
 The SQL is defined to be a own name but is more often referred to as a abbreviation of **S**tandard **Q**uery **L**anguage. (Which is officially not correct.) 
 The SQL language is a very structured but yet unflexible language. Unlike R, you have to exactly specify what and how you want to manipulate or query data in the system. Trail-and-Error like invoking and calling of function won't yield any success in most cases. 
@@ -46,11 +50,13 @@ Theoretically. In practice, these standards are very restrictive and the real po
 is a extension to a SQL standard, which is specific to each database management system and often enough also RDBMS version. 
 Therefore, learning SQL for PostgreSQL will help you to learn other systems, but unfortunatelly not prevent you from learning other accents.
 
-### SQL Query
+# SQL Query
 
 Any execution command pushed to the database system is called a query. This does not necessarily mean that you are actually *querying*, i.e. asking for data. The command for deleting a whole table is also called a query.
 Usually you define the basic **Operation**, followed by the **Entitiy** to operate on, the specified optional **Parameters** how to run the operation and a **Filter** statement which data points shall be affected. Additionally, a **grouping** and a **sorting** can be appended to data queries. 
 The four most important database operations are <span style="color:blue">SELECT</span>, <span style="color:blue">INSERT</span>, <span style="color:blue">UPDATE</span> and <span style="color:blue">DELETE</span>. The main entities we will be focusing on are tables, columns and constrains. The only filter we will use is the so called <span style="color:blue">WHERE</span>-clause. <br>
+
+## select
 Now, let's start with the 'Hello World!' example of the database world: select all rows (datasets) from one table (entity).
 
 ```{sql connection=con}
@@ -69,7 +75,7 @@ As you can see, SQL is not case-sensitive. But it is convention to write SQL key
 <div class="alert alert-warning">**CAUTION:** Unlike R, SQL makes a difference between single and double quotes. Single quotes are used for values in strings, texts and character chains, while double quotes are used for quoting entity names. E.g.:<br>
 WHERE "name"='Freiburg'.<br> The opposite usage will not work.</div>
 
-### Selecting data
+## ordering and limiting the results
 
 The select is the most important operation for us, as we usually have complex structured data in the database and need very specific subsets of that data for analysis. Another powerful data extraction tool is the database ability to rapidly order data and limit the output.
 
@@ -81,6 +87,9 @@ select name from stations order by elevation desc limit 5
 select name from stations order by elevation asc limit 5
 ```
 This will give us the five stations with the highest elevation.<br>
+
+## filter
+
 Databases are not only good at comparing filter to values, but also in searching the values itself. You can use the percentage sign in PostgreSQL as a placeholder for _any sign_. Instead for searching for an exact match, we can filter by a _string alike_.
 
 ```{sql connection=con}
@@ -95,7 +104,7 @@ select name, elevation from stations where name like '%burg%'
 
 will return anything that has a <span style="color: darkred">'burg'</span> somewhere in the name.
 
-### Aggregation
+## aggregation
 
 The SQL langauage is especially useful when it comes to data aggregation. SQL can not only be used to take over most of the aggregation parts in a data analysis pipeline, it is also useful to decrease the data density before sending it through your internet connection.
 The easiest aggregation is to aggregate a whole table using the function _count_. 
@@ -125,7 +134,7 @@ This is also equivalent to:
 select substr(name, 1,1) as first_letter, count(name), max(elevation) as max_elev from stations group by first_letter
 ```
 
-### Unique values & UNIONS
+# Unique values & UNIONS
 
 A very powerful feature is SQL's ability to select values only once from a table. In SQL words we <span style="color: blue">SELECT DISTINCT</span>. Let's try this on a different table.
 ```{sql connection=con}
@@ -147,7 +156,7 @@ You can also put the <span style="color: blue">DISTINCT</span> directly after th
 select distinct description_id from vegetation_cover
 ```
 
-### Joins
+# Joins
 
 The one feature making PostgreSQL actually an _relational_ database system is the fact that, technically, there are no duplicates in any table. Tha means each row (or _relation_) has an unique identifier. This is called the **primary key**. 
 For vegetation cover, this is the _id_ attribute. There is also a table called *vegetation_cover_description*. THis one has also an primary key called _id_.
@@ -177,7 +186,7 @@ limit 10
 ```
 
 
-### cleanup
+# cleanup
 
 ```{r}
 dbDisconnect(con)
