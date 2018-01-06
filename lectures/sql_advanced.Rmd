@@ -22,6 +22,8 @@ if (!("getPass" %in% installed.packages())){
 }
 require(RPostgreSQL)
 require(getPass)
+require(ggplot2)
+require(dplyr)
 
 # establish the connection
 drv <- dbDriver('PostgreSQL')
@@ -39,13 +41,96 @@ connection used for creation, the table will automatically be droped.
 This can save you from a lot of cleanup work. 
 
 <div class="alert alert-warning">Some SQL clients open and close a connection on each command issued in order to keep the number of connection small and
-prevent the user from keeping open connections. You will have to </div>
+prevent the user from keeping open connections. You will have to change the settings or the tool in case you want to use temporary object using these tools.</div>
+<hr>
+There is a table called *bw_temp_2017b* in the database. This table includes daily meteorological measurements as distributed by the DWD for temperature, rainfall, snowfall and relative humidity. 
+The database table is saved just like it was imorted. The table _data_ is a more normalized version of the first one. A temporary table can be useful to 
+extract only the parameters needed from the normalized table. Let's have a look at it.
 
+```{sql connection=con}
+select * from data order by id, date DESC limit 10
+```
 
+As you can see, there are different values for the same day at the same station. The meaning of this value is described in a lookup table joined by the variable id. 
+This structure might feel strange but is very common to save timeseries data. It is performat, flexible and easy to maintain and extend. 
+These advantages come at the tradeoff of a bit more complex structure and hence more complicated queries. 
+But one step after the other. Let's have a look at the lookup table.
 
-### cleanup
+```{sql connection=con}
+select * from variables
+```
+
+This is a quite small lookup table, but as you can see we do not have to write the full name of the variable behind every entry in the data table.
+The brings us way more flexibility in describing the variables. At the end of the day both tables be joined togehter quite easy.<br>
+
+Imagine we only want to use the precipitation values today, we can build a new temporary table as a starting point.
+
+```{sql connection=con}
+create temporary table precipitation as
+select id, date, value as precipitation from data where variable_id=1
+```
+```{sql connection=con}
+select * from precipitation limit 5
+```
+
+The next structure we want to use is the view. A view is like a persistant <span style="color: blue">SELECT</span> query that will be rerun each time you try to query the results. 
+It will behave like a dynamic table with the only difference of being not editable. From a performance point of view, a view is not capable of indices, which can make it way slower than a table. <br>
+Let's create a view of monthly min, max, mean, and count of precipitation.
+
+```{sql connection=con}
+create temporary view precipitation_summary as
+select id, date_trunc('month', date) as month, 
+  avg(precipitation) as mean, 
+  min(case when precipitation > 0.0 then precipitation end) as min, 
+  max(precipitation) as max, 
+  sum((precipitation > 0.0)::integer) as "rainy days" 
+from precipitation
+group by id, month
+```
+```{sql connection=con}
+select * from precipitation_summary
+```
+
+This is a great overview table for doing some in-depth analysis of the precipitation distribution. Once you streamed your results into R, a persistant table or any 
+kind of text-based file, you can just close the database connection and the two tables _precipitation_ and *precipitation_summary* will be dropped.
+
+```{sql connection=con, output.var="precipitation"}
+select month, mean, min, max from precipitation_summary where id=257 order by month ASC
+```
+```{r}
+precipitation %>%
+  filter(month >= '1980-01-01' & month < '1990-01-01') %>%
+  ggplot(aes(x=month, y=mean)) + 
+    geom_ribbon(aes(ymin=min, ymax=max),fill='blue', alpha=0.3) + 
+    geom_line(color='blue', size=2)
+```
+
+<div class="alert alert-success">Before you continue, play around with these objects a little bit. You should get a good feeling for whether to use temporary object or not
+You could for example create another view that holds the exact same information but only for summer rainfalls. This means the date should be in summer and the temperature
+ for example above 18°C.
+</div>
+
+Now close the connection:
 
 ```{r}
 dbDisconnect(con)
 ```
 
+Restablish:
+
+```{r}
+# establish the connection
+drv <- dbDriver('PostgreSQL')
+con <- dbConnect(drv, host='openhydro.de', port=5432, user=getPass('Provide the user'), 
+                 password=getPass('Provide the password'), dbname='dwd')
+```
+
+And the tables are gone
+```{r}
+'precipitation' %in% dbListTables(con) | 'precipitation_summary' %in% dbListTables(con)
+```
+
+### cleanup
+```{r}
+dbDisconnect(con)
+```
