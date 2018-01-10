@@ -2,21 +2,21 @@
 title: "Advanced SQL techniques"
 author: "Mirko Mälicke"
 output:
-  html_document: 
+  html_document:
+    df_print: paged
+    theme: flatly
     toc: yes
     toc_float: yes
-    theme: flatly
-    df_print: paged
   html_notebook:
     number_sections: yes
+    theme: flatly
     toc: yes
     toc_float: yes
-    theme: flatly
   pdf_document:
-    toc: true
+    toc: yes
 ---
 
-```{r, echo=FALSE}
+```{r, include=FALSE}
 # require the package
 if (!("RPostgreSQL" %in% installed.packages())){
   install.packages("RPostgreSQL")
@@ -133,6 +133,65 @@ And the tables are gone
 ```{r}
 'precipitation' %in% dbListTables(con) | 'precipitation_summary' %in% dbListTables(con)
 ```
+
+
+# Joins
+## chaining Joins
+This section will give some more insights on <span style="color:blue">JOINS</span>. It will cover different types of JOINS and how to chain a JOIN. 
+Quite often you will find yourself in a situation, where you have to join a lookup table to a table of interest 
+and this lookup table is itself described by another lookup table. 
+Querying these structures is fairly straightforward as you can just chain joins together. 
+This can be demonstrated by the vegetation_cover table
+
+```{sql connection=con}
+select * from stations s
+join vegetation_cover vc on st_within(s.geometry, vc.geometry)
+join vegetation_cover_description vd on vd.id=vc.description_id 
+```
+
+Now, we could join this result to the data table and make all this meta data available to every measurement record. 
+This will obviusly take some time. 
+In this case you are not interested in the full meta_data record but just in a subset. Of course we want to come up with a fast solution.
+<br> Let's build two different Views producing the same output.
+```{sql connection=con}
+create temporary view join_then_filter as
+select d.date, d.value, s.name, v.name as variable, v.unit, vd.name as vegetation from data d
+join stations s on s.id=d.id
+join variables v on d.variable_id=v.id
+join vegetation_cover vc on st_within(s.geometry, vc.geometry)
+join vegetation_cover_description vd on vd.id=vc.description_id 
+where vd.id=20 and v.id=1 and s.geometry is not null and s.discipline_id=1
+```
+```{sql connection=con}
+create temporary view filter_then_join as
+select d.date, d.value, s.name, v.name as variable, v.unit, vd.name as vegetation from data d
+join stations s on s.id=d.id and s.discipline_id=1
+join variables v on d.variable_id=v.id and v.id=1
+join vegetation_cover vc on st_within(s.geometry, vc.geometry) and s.geometry is not null
+join vegetation_cover_description vd on vd.id=vc.description_id and vd.id=20
+```
+
+Let's have a look on the first two rows of both views:
+```{sql connection=con}
+select * from join_then_filter limit 2
+```
+```{sql connection=con}
+select * from filter_then_join limit 2
+```
+
+<div class="alert alert-warning">Before you continue, what do you think is the faster query and why?</div>
+
+```{sql connection=con}
+explain analyze select * from join_then_filter
+```
+```{sql connection=con}
+explain analyze select * from filter_then_join
+```
+
+<div class="alert alert-success">Have a close look and don't focus on the total time. The query plan is exactly the same, that means although we were using a different query logic, PostgreSQL kind of got the idea behind our query and tried to find the fastest solution.</div>
+
+## join types
+
 
 # cleanup
 ```{r}
