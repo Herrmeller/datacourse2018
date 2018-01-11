@@ -2,13 +2,13 @@
 title: "Advanced SQL techniques"
 author: "Mirko Mälicke"
 output:
-  html_document:
+  html_notebook:
     df_print: paged
     number_sections: yes
     theme: flatly
     toc: yes
     toc_float: yes
-  html_notebook:
+  html_document:
     df_print: paged
     number_sections: yes
     theme: flatly
@@ -18,7 +18,7 @@ output:
     toc: yes
 ---
 
-```{r, echo=FALSE, include=T}
+```{r, echo=FALSE, include=TRUE}
 # require the package
 if (!("RPostgreSQL" %in% installed.packages())){
   install.packages("RPostgreSQL")

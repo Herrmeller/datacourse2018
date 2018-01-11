@@ -1,0 +1,137 @@
+---
+title: "Advanced SQL"
+author: "Mirko Mälicke"
+output:
+  html_notebook:
+    theme: flatly
+    toc: yes
+  html_document:
+    theme: flatly
+    toc: yes
+  pdf_document:
+    toc: yes
+---
+
+```{r, echo=FALSE, include=T}
+# require the package
+if (!("RPostgreSQL" %in% installed.packages())){
+  install.packages("RPostgreSQL")
+}
+if (!("getPass" %in% installed.packages())){
+  install.packages("getPass")
+}
+require(RPostgreSQL)
+require(getPass)
+require(ggplot2)
+
+# establish the connection
+drv <- dbDriver('PostgreSQL')
+con <- dbConnect(drv, host='openhydro.de', port=5432, user=getPass('Provide the user'), 
+                 password=getPass('Provide the password'), dbname='dwd')
+```
+
+Build a temporary table called *name_precipitation*, where you should replace *name* with your actual name. This table shall contain 
+all measurements from the data table holding precipitation information. 
+```{sql connection=con}
+
+```
+
+Create a view on this table that holds monthly statistics for every station id. Calculate the monthly sum, the highest observed daily 
+rainfall sum, the number of extreme rainfalls (daily precipitation > 30).
+```{sql connection=con}
+
+```
+
+Create a view on the last view, that aggregates the same statistics for anual overviews.
+```{sql connection=con}
+
+```
+
+Which station observed the highest monthly rainfall sum?
+```{sql connection=con}
+
+```
+
+Which station observed the most extreme rainfall occurences within one month? Which within one year?
+```{sql connection=con}
+
+```
+
+Which was the year with the most overall extreme rainfall occurences? (ignoring the station)
+```{sql connection=con}
+
+```
+
+Which is the station with the most extreme rainfall events within this year (from the last chunk)? 
+Which one with the most extreme rainfall events overall?
+```{sql connection=con}
+
+```
+
+Create a view, that includes only the records from _data_ which fulfilled the extreme rainfall constraint.
+Join another column to this view, that holds the _type of precipitation_ variable. From this Join, create a histogram of _type of precipitation_. Calculate an overall histogram.
+```{sql connection=con}
+
+```
+
+**OPTIONAL:** Can you redo the last step and do the same analysis for 'per station' histograms?
+```{sql connection=con}
+
+```
+
+Use the insights of the last two chunks and write two sentences about the _type of precipitation_ variable. How useful is it? 
+<div class="alert alert-info">
+Answer:
+
+</div>
+
+Load the anual overview on extreme rainfalls into a data.frame and plot a violine plot of the amount of extreme rainfalls per station.
+```{sql connection=con, output.var="rain.annual"}
+
+```
+```{r}
+View(rain.annual)
+
+```
+
+Redo the last exercise for the monthly extreme rainfall counts. Does this change the picture?
+What can you say about the distribution of extreme rainfall events from these plots?
+```{sql connection=con, output.var="rain.monthly"}
+
+```
+```{r}
+View(rain.monthly)
+
+```
+<div class="alert alert-info">
+Answer:
+
+</div>
+
+Load the locations for the used stations from the database.
+```{sql connection=con, output.var="locations"}
+
+```
+```{r}
+View(locations)
+```
+
+
+Plot these locations and represent any measure for annual variance in extreme rainfall events by the point size of the used locations.<br>
+**OPTIONAL:** Additionally mark the station showing the most and least recorded extreme rainfalls by another marker into the same plot. (eg. use a green and a red cross or star.)
+```{r}
+
+```
+
+How can you interpret this result?
+<div class="alert alert-info">
+Answer:
+
+</div>
+
+
+
+
+
+
+
