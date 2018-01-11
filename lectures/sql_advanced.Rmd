@@ -4,10 +4,12 @@ author: "Mirko Mälicke"
 output:
   html_document:
     df_print: paged
+    number_sections: yes
     theme: flatly
     toc: yes
     toc_float: yes
   html_notebook:
+    df_print: paged
     number_sections: yes
     theme: flatly
     toc: yes
@@ -16,7 +18,7 @@ output:
     toc: yes
 ---
 
-```{r, include=FALSE}
+```{r, echo=FALSE, include=T}
 # require the package
 if (!("RPostgreSQL" %in% installed.packages())){
   install.packages("RPostgreSQL")

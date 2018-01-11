@@ -2,18 +2,18 @@
 title: "R - Postgres Tutorial"
 author: "Mirko Mälicke"
 output:
+  html_document:
+    df_print: paged
+    theme: flatly
+    toc: yes
+    toc_float: yes
   html_notebook:
     number_sections: yes
+    theme: flatly
     toc: yes
     toc_float: yes
-    theme: flatly
-  html_document: 
-    toc: yes
-    toc_float: yes
-    theme: flatly
-    df_print: paged
   pdf_document:
-    toc: true
+    toc: yes
 ---
 # Install the packages
 
@@ -60,7 +60,7 @@ dbListTables(con)
 ```
 
 Then load the stations
-```{r}
+```{r, include=F}
 stations <- dbReadTable(con, 'stations')
 stations
 ```
@@ -68,7 +68,7 @@ stations
 We will head to the unrecognized column later on. At first, let's add a arbitrary station and remove it again. Remember, that you have to preserve the table structure. The most easiest approach is therefore to append a new row to the just created data frame. Ignore the last value for now. Lastly, it is important to set the 'append' flag, in order to append the data to the end of the table.
 
 ```{r}
-import <- data.frame(id=9999, name='Mirkos Station', elevation=2500, geometry="POINT(7.8 48.0)", description="My dummy station", discipline_id=99, hobo_id=99999)
+import <- data.frame(id=9999, name='Mirkos Station', elevation=2500, geometry="POINT(7.8 48.0)", description="My dummy station", discipline_id=99, hobo_id=99999, influence='super high')
 names(import) <- names(stations)
 dbWriteTable(con, 'stations', import, append=TRUE, row.names=FALSE)
 ```

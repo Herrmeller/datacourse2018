@@ -224,8 +224,38 @@ div.tocify {
 </div>
 
 
+<pre class="r"><code># require the package
+if (!(&quot;RPostgreSQL&quot; %in% installed.packages())){
+  install.packages(&quot;RPostgreSQL&quot;)
+}
+if (!(&quot;getPass&quot; %in% installed.packages())){
+  install.packages(&quot;getPass&quot;)
+}
+require(RPostgreSQL)</code></pre>
+<pre><code>## Loading required package: RPostgreSQL</code></pre>
+<pre><code>## Loading required package: DBI</code></pre>
+<pre class="r"><code>require(getPass)</code></pre>
+<pre><code>## Loading required package: getPass</code></pre>
+<pre class="r"><code>require(ggplot2)</code></pre>
+<pre><code>## Loading required package: ggplot2</code></pre>
+<pre class="r"><code>require(dplyr)</code></pre>
+<pre><code>## Loading required package: dplyr</code></pre>
+<pre><code>## 
+## Attaching package: 'dplyr'</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code># establish the connection
+drv &lt;- dbDriver('PostgreSQL')
+con &lt;- dbConnect(drv, host='openhydro.de', port=5432, user=getPass('Provide the user'), 
+                 password=getPass('Provide the password'), dbname='dwd')</code></pre>
+<pre><code>## Please enter password in TK window (Alt+Tab)
+## Please enter password in TK window (Alt+Tab)</code></pre>
 <div id="temporarily-creating-objects" class="section level1">
-<h1>Temporarily creating objects</h1>
+<h1><span class="header-section-number">1</span> Temporarily creating objects</h1>
 <p>Especially for development and data analysis tasks it is very useful to create temporary results. This saves a lot of time and will keep your database clean as you do not have to remember which objects were only intermediate and can be droped. The SQL language knows the <span style="color:blue">TEMPORARY</span> keyword, which can be used along with <span style="color:blue">CREATE</span> statements. This is most often used on the creation of tables and views. The temporary tables can be used just like persistent tables, but once you close the connection used for creation, the table will automatically be droped. This can save you from a lot of cleanup work.</p>
 <div class="alert alert-warning">
 Some SQL clients open and close a connection on each command issued in order to keep the number of connection small and prevent the user from keeping open connections. You will have to change the settings or the tool in case you want to use temporary object using these tools.
@@ -544,9 +574,9 @@ con &lt;- dbConnect(drv, host='openhydro.de', port=5432, user=getPass('Provide t
 <pre><code>## [1] FALSE</code></pre>
 </div>
 <div id="joins" class="section level1">
-<h1>Joins</h1>
+<h1><span class="header-section-number">2</span> Joins</h1>
 <div id="chaining-joins" class="section level2">
-<h2>chaining Joins</h2>
+<h2><span class="header-section-number">2.1</span> chaining Joins</h2>
 <p>This section will give some more insights on <span style="color:blue">JOINS</span>. It will cover different types of JOINS and how to chain a JOIN. Quite often you will find yourself in a situation, where you have to join a lookup table to a table of interest and this lookup table is itself described by another lookup table. Querying these structures is fairly straightforward as you can just chain joins together. This can be demonstrated by the vegetation_cover table</p>
 <pre class="sql"><code>select * from stations s
 join vegetation_cover vc on st_within(s.geometry, vc.geometry)
@@ -824,34 +854,34 @@ Before you continue, what do you think is the faster query and why?
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">Hash Join (cost=18221.18..521182.74 rows=30169321 width=125) (actual time=86.293..831.832 rows=77253 loops=1)</td>
+<td align="left">Hash Join (cost=18221.18..521182.74 rows=30169321 width=125) (actual time=61.132..799.765 rows=77253 loops=1)</td>
 </tr>
 <tr class="even">
-<td align="left">Hash Cond: (d.id = s.id)</td>
+<td align="left">Hash Cond: (d.id = cstations.id)</td>
 </tr>
 <tr class="odd">
-<td align="left">-&gt; Seq Scan on data d (cost=0.00..94411.44 rows=799056 width=21) (actual time=0.016..659.456 rows=688485 loops=1)</td>
+<td align="left">-&gt; Seq Scan on data d (cost=0.00..94411.44 rows=799056 width=21) (actual time=0.011..652.828 rows=688485 loops=1)</td>
 </tr>
 <tr class="even">
 <td align="left">Filter: (variable_id = 1)</td>
 </tr>
 <tr class="odd">
-<td align="left">-&gt; Hash (cost=18192.39..18192.39 rows=2303 width=120) (actual time=85.806..85.806 rows=4 loops=1)</td>
+<td align="left">-&gt; Hash (cost=18192.39..18192.39 rows=2303 width=120) (actual time=60.682..60.682 rows=4 loops=1)</td>
 </tr>
 <tr class="even">
 <td align="left">Buckets: 1024 Batches: 1 Memory Usage: 1kB</td>
 </tr>
 <tr class="odd">
-<td align="left">-&gt; Nested Loop (cost=0.00..18192.39 rows=2303 width=120) (actual time=16.681..85.799 rows=4 loops=1)</td>
+<td align="left">-&gt; Nested Loop (cost=0.00..18192.39 rows=2303 width=120) (actual time=9.649..60.675 rows=4 loops=1)</td>
 </tr>
 <tr class="even">
-<td align="left">-&gt; Nested Loop (cost=0.00..18162.49 rows=2303 width=92) (actual time=16.668..85.781 rows=4 loops=1)</td>
+<td align="left">-&gt; Nested Loop (cost=0.00..18162.49 rows=2303 width=92) (actual time=9.642..60.662 rows=4 loops=1)</td>
 </tr>
 <tr class="odd">
-<td align="left">Join Filter: ((s.geometry &amp;&amp; vc.geometry) AND _st_contains(vc.geometry, s.geometry))</td>
+<td align="left">Join Filter: ((cstations.geometry &amp;&amp; vc.geometry) AND _st_contains(vc.geometry, cstations.geometry))</td>
 </tr>
 <tr class="even">
-<td align="left">-&gt; Nested Loop (cost=0.00..14.61 rows=22 width=120) (actual time=0.034..0.144 rows=31 loops=1)</td>
+<td align="left">-&gt; Nested Loop (cost=0.00..14.61 rows=22 width=120) (actual time=0.025..0.112 rows=31 loops=1)</td>
 </tr>
 </tbody>
 </table>
@@ -869,34 +899,34 @@ Before you continue, what do you think is the faster query and why?
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">Hash Join (cost=18221.18..521182.74 rows=30169321 width=125) (actual time=60.216..803.464 rows=77253 loops=1)</td>
+<td align="left">Hash Join (cost=18221.18..521182.74 rows=30169321 width=125) (actual time=60.794..791.373 rows=77253 loops=1)</td>
 </tr>
 <tr class="even">
-<td align="left">Hash Cond: (d.id = s.id)</td>
+<td align="left">Hash Cond: (d.id = cstations.id)</td>
 </tr>
 <tr class="odd">
-<td align="left">-&gt; Seq Scan on data d (cost=0.00..94411.44 rows=799056 width=21) (actual time=0.011..657.606 rows=688485 loops=1)</td>
+<td align="left">-&gt; Seq Scan on data d (cost=0.00..94411.44 rows=799056 width=21) (actual time=0.009..645.437 rows=688485 loops=1)</td>
 </tr>
 <tr class="even">
 <td align="left">Filter: (variable_id = 1)</td>
 </tr>
 <tr class="odd">
-<td align="left">-&gt; Hash (cost=18192.39..18192.39 rows=2303 width=120) (actual time=59.732..59.732 rows=4 loops=1)</td>
+<td align="left">-&gt; Hash (cost=18192.39..18192.39 rows=2303 width=120) (actual time=60.328..60.328 rows=4 loops=1)</td>
 </tr>
 <tr class="even">
 <td align="left">Buckets: 1024 Batches: 1 Memory Usage: 1kB</td>
 </tr>
 <tr class="odd">
-<td align="left">-&gt; Nested Loop (cost=0.00..18192.39 rows=2303 width=120) (actual time=9.082..59.725 rows=4 loops=1)</td>
+<td align="left">-&gt; Nested Loop (cost=0.00..18192.39 rows=2303 width=120) (actual time=9.625..60.321 rows=4 loops=1)</td>
 </tr>
 <tr class="even">
-<td align="left">-&gt; Nested Loop (cost=0.00..18162.49 rows=2303 width=92) (actual time=9.069..59.707 rows=4 loops=1)</td>
+<td align="left">-&gt; Nested Loop (cost=0.00..18162.49 rows=2303 width=92) (actual time=9.620..60.311 rows=4 loops=1)</td>
 </tr>
 <tr class="odd">
-<td align="left">Join Filter: ((s.geometry &amp;&amp; vc.geometry) AND _st_contains(vc.geometry, s.geometry))</td>
+<td align="left">Join Filter: ((cstations.geometry &amp;&amp; vc.geometry) AND _st_contains(vc.geometry, cstations.geometry))</td>
 </tr>
 <tr class="even">
-<td align="left">-&gt; Nested Loop (cost=0.00..14.61 rows=22 width=120) (actual time=0.037..0.128 rows=31 loops=1)</td>
+<td align="left">-&gt; Nested Loop (cost=0.00..14.61 rows=22 width=120) (actual time=0.036..0.123 rows=31 loops=1)</td>
 </tr>
 </tbody>
 </table>
@@ -906,7 +936,7 @@ Have a close look and don’t focus on the total time. The query plan is exactly
 </div>
 </div>
 <div id="leftright-join" class="section level2">
-<h2>left/right join</h2>
+<h2><span class="header-section-number">2.2</span> left/right join</h2>
 <p>In all the preceding examples, the join of two tables went quite well as every entry in the first table could find at least on entry on the second table. Switching to ‘database language’ here, the first table will be called the <em>left</em> and the second one the <em>right</em> table. By default, the database will always join the right to the left one. If there is no foreign key referencing a record on the right table, there won’t be a join for these entries. <br> Thus, the <em>default</em> join is in reality a <span style="color:blue">LEFT JOIN</span>. The oposite direction for building the join can be achieved by using a <span style="color:blue">RIGHT JOIN</span>.<br> This can be illustrated by building an easy example.</p>
 <p>looks like:</p>
 <pre class="sql"><code>select * from people</code></pre>
@@ -1177,7 +1207,7 @@ Have a close look and don’t focus on the total time. The query plan is exactly
 </div>
 </div>
 <div id="innerouter-join" class="section level2">
-<h2>inner/outer join</h2>
+<h2><span class="header-section-number">2.3</span> inner/outer join</h2>
 <p>The <em>type</em> of join is controlled by the <span style="color:blue">INNER</span> and <span style="color:blue">OUTER</span> keyword. This sets the condition on omitting and duplication of entires in the result. Think of these keywords from a mengenlehre perspective. The INNER subset of both tables are the ones which are described by a foreign key on the left and a primary key on the right table (if the direction is <em>left</em>). The OUTER subset are the records which are either described by a <strong>primary key</strong> on the left or right, no matter what the direction might look like.</p>
 <pre class="sql"><code>select * from people p inner join roles r on p.role_id=r.id</code></pre>
 <div class="knitsql-table">
@@ -1369,7 +1399,7 @@ There is also something called a <span style="color:blue">NATURAL JOIN</span> in
 </div>
 </div>
 <div id="cleanup" class="section level1">
-<h1>cleanup</h1>
+<h1><span class="header-section-number">3</span> cleanup</h1>
 <pre class="r"><code>dbDisconnect(con)</code></pre>
 <pre><code>## [1] TRUE</code></pre>
 </div>

@@ -2,21 +2,23 @@
 title: "PostGIS"
 author: "Mirko Mälicke"
 output:
-  html_document: 
-    toc: yes
-    toc_float: yes
-    theme: flatly
+  html_document:
     df_print: paged
-  html_notebook:
     number_sections: yes
+    theme: flatly
     toc: yes
     toc_float: yes
+  html_notebook:
+    df_print: paged
+    number_sections: yes
     theme: flatly
+    toc: yes
+    toc_float: yes
   pdf_document:
-    toc: true
+    toc: yes
 ---
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, include=T}
 # require the package
 if (!("RPostgreSQL" %in% installed.packages())){
   install.packages("RPostgreSQL")
