@@ -21,13 +21,14 @@ def update(url, uri, **kwargs):
             sql = """
 update stations set name='%s', 
   geometry=%s,
-  description=%s, discipline_id=%s, hobo_id=%s
+  description=%s, discipline_id=%s, hobo_id=%s, influence='%s'
 where id=%d
 """ % (str(row['first_name'] + ' ' + row['family_name']),
        "st_transform(st_geomfromewkt('SRID=4326;POINT (%.8f %.8f)'), 25832)" % (row['longitude'], row['latitude']) if not np.isnan(row['longitude']) else 'NULL',
        "'%s'" % row['short_description_hobo_location'] if isinstance(row['short_description_hobo_location'], str) else 'NULL',
        row['discipline'].replace('Environmental_Science', '2').replace('Hydrology', '3').replace('Lecturer', '99'),
-       str(int(row['hobo_id'])) if not np.isnan(row['hobo_id']) else 'NULL', int(row['id']))
+       str(int(row['hobo_id'])) if not np.isnan(row['hobo_id']) else 'NULL',
+       row['influence'] if isinstance(row['influence'], str) else 'NULL', int(row['id']))
             print(sql)
             try:
                 con.execute(sql)
