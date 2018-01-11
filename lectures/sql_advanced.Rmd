@@ -190,7 +190,87 @@ explain analyze select * from filter_then_join
 
 <div class="alert alert-success">Have a close look and don't focus on the total time. The query plan is exactly the same, that means although we were using a different query logic, PostgreSQL kind of got the idea behind our query and tried to find the fastest solution.</div>
 
-## join types
+## left/right join
+
+In all the preceding examples, the join of two tables went quite well as every entry in the first table could find at least on entry 
+on the second table. Switching to 'database language' here, the first table will be called the _left_ and the second one the _right_ table.
+By default, the database will always join the right to the left one. If there is no foreign key referencing a record on the right table, there won't be a join for these entries. <br>
+Thus, the _default_ join is in reality a <span style="color:blue">LEFT JOIN</span>. 
+The oposite direction for building the join can be achieved by using a <span style="color:blue">RIGHT JOIN</span>.<br>
+This can be illustrated by building an easy example.
+```{sql connection=con, warning=F, echo=F, message=F}
+create temporary table roles (
+  id serial constraint pkey_roles primary key,
+  name text
+);
+create temporary table people (
+  id serial constraint pkey_people primary key,
+  name text,
+  role_id integer constraint fkey_role references roles
+);
+insert into roles (id, name) values (1, 'jun. developer'), (2, 'sen. developer'), (3, 'boss');
+insert into people (name, role_id) values ('alex', 1), ('dave', NULL), ('christine', 3), ('brian', 2), ('melanie', 2);
+```
+
+looks like:
+```{sql connection=con}
+select * from people
+```
+```{sql connection=con}
+select * from roles
+```
+
+Now, the left join should give us the expected example of the roles.id and roles.name bound to everybody except dave. The right join on the other hand should give us the roles with the people bound to it. 
+
+<div class="alert alert-warning">Before you procede think about the following aspects:
+  * What will happen to dave? Omitted?
+  * Who will be bound to sen. developer - brian or melanie - and why?
+</div>
+
+```{sql connection=con}
+select * from people p left join roles r on p.role_id=r.id
+```
+```{sql connection=con}
+select * from people p right join roles r on p.role_id=r.id
+```
+ 
+Not what you expected? Well, the left/right just gives the **direction**. That's why dave is only missing in the right join.
+For the opposite **behaviour** we will need another _type_ of joining, more on that in the next section. 
+What you might have expected for the second example is the opposite _join_.:
+```{sql connection=con}
+select * from roles r join people p on p.role_id=r.id
+```
+with the other direction:
+```{sql connection=con}
+select * from roles r right join people p on p.role_id=r.id
+```
+
+## inner/outer join
+
+The _type_ of join is controlled by the <span style="color:blue">INNER</span> and <span style="color:blue">OUTER</span> keyword.
+This sets the condition on omitting and duplication of entires in the result. 
+Think of these keywords from a mengenlehre perspective. The INNER subset of both tables are the ones which are described by a
+foreign key on the left and a primary key on the right table (if the direction is _left_). 
+The OUTER subset are the records which are either described by a **primary key** on the left or right, no matter what the direction 
+might look like.
+```{sql connection=con}
+select * from people p inner join roles r on p.role_id=r.id
+```
+```{sql connection=con}
+select * from people p left outer join roles r on p.role_id=r.id
+```
+```{sql connection=con}
+delete from people where id=1;
+select * from people p left outer join roles r on p.role_id=r.id
+```
+```{sql connection=con}
+select * from people p inner join roles r on p.role_id=r.id
+```
+<div class="alert alert-success">LEFT/RIGHT joins decide on the __direction__ you look at the joined information. If you look from the left, you will only see entries from the lfet table and vice versa. INNER/OUTER joins decide on the __type__ of join. This controls the conditions for including/excluding/duplicating entries in the result.</div>
+
+<div class="alert alert-warning">There is also something called a <span style="color:blue">NATURAL JOIN</span> in PostgreSQL.
+This will use the foreign key from the left table using the exactly same name as the primary key in the right table and 
+omit both columns in the result.</div>
 
 
 # cleanup
