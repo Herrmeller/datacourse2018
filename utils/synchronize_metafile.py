@@ -37,6 +37,7 @@ where id=%d
                 print('ERROR: %s\nskipping...' % str(e))
         print('--------------\n finished (%d errors)' % errors)
 
+
 if __name__ == '__main__':
     # call like: >python synchronize_metafile.py url_to_spreadsheed uri_to_database
     import sys
