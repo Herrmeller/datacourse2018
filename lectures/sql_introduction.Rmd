@@ -2,16 +2,12 @@
 title: "Introduction to SQL"
 author: "Mirko Mälicke"
 output:
-  html_document:
-    df_print: paged
+  html_notebook:
     number_sections: yes
-    theme: flatly
     toc: yes
     toc_float: yes
-  html_notebook:
-    df_print: paged
+  html_document:
     number_sections: yes
-    theme: flatly
     toc: yes
     toc_float: yes
   pdf_document:
@@ -21,7 +17,7 @@ output:
 This notebook will focus on the SQL language. Most code will be run in SQL chunks, therefore you will need RStudio to view this material.
 The cunk below will require all dependencies and establish the connection to the database.
 
-```{r, echo=FALSE, include=T}
+```{r, echo=F}
 # require the package
 if (!("RPostgreSQL" %in% installed.packages())){
   install.packages("RPostgreSQL")

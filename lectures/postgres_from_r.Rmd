@@ -2,14 +2,12 @@
 title: "R - Postgres Tutorial"
 author: "Mirko Mälicke"
 output:
-  html_document:
-    df_print: paged
-    theme: flatly
-    toc: yes
-    toc_float: yes
   html_notebook:
     number_sections: yes
-    theme: flatly
+    toc: yes
+    toc_float: yes
+  html_document:
+    number_sections: yes
     toc: yes
     toc_float: yes
   pdf_document:
@@ -59,18 +57,18 @@ As a first exercise, we want to read the whole station list from the database.
 dbListTables(con)
 ```
 
-Then load the stations
-```{r, include=F}
-stations <- dbReadTable(con, 'stations')
+Beside the 'offical' station table, there is another exercise table containing only the DWD stations called *only_dwd_stations*.
+```{r}
+stations <- dbReadTable(con, 'only_dwd_stations')
 stations
 ```
 
 We will head to the unrecognized column later on. At first, let's add a arbitrary station and remove it again. Remember, that you have to preserve the table structure. The most easiest approach is therefore to append a new row to the just created data frame. Ignore the last value for now. Lastly, it is important to set the 'append' flag, in order to append the data to the end of the table.
 
 ```{r}
-import <- data.frame(id=9999, name='Mirkos Station', elevation=2500, geometry="POINT(7.8 48.0)", description="My dummy station", discipline_id=99, hobo_id=99999, influence='super high')
+import <- data.frame(id=9999, name='Mirkos Station', elevation=2500, geometry="POINT(7.8 48.0)")
 names(import) <- names(stations)
-dbWriteTable(con, 'stations', import, append=TRUE, row.names=FALSE)
+dbWriteTable(con, 'only_dwd_stations', import, append=TRUE, row.names=FALSE)
 ```
 
 # Executing SQL
@@ -80,7 +78,7 @@ In order to check, wether our data reached the database, we will create our own 
 <div class="alert alert-warning">Under the hood fetching the result from the connection is a multistep process. First, the SQL has to be executed in the database. Then, the connection has to be flushed. Next, the response from the DB server is cached and is finally converted from a raw bytes objects to a R object.</div>
 
 ```{r}
-sql <- 'Select * from stations where id=9999'
+sql <- 'Select * from only_dwd_stations where id=9999'
 dbGetQuery(con, sql)
 ```
 
@@ -95,14 +93,14 @@ Although this makes coding on databases easy and improves the readability of the
 However, the code from the last chunk could also be run like:
 
 ```{sql connection=con}
-select * from stations where id=9999
+select * from only_dwd_stations where id=9999
 ```
 
 This leads to exactly the same result, while we can concentrate on the SQL language. Lastly, we will remove the created line again as this station does not really exist. The <span style='color:blue'>DELETE</span> statement follows the same syntax as <span style='color:blue'>SELECT</span>.<br>
 <div class="alert alert-danger"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="True"></span> **CAUTION**: Be absolutely sure about your statement as SQL does not ask if you really want to delete data. It will just be gone. Without a WHERE clause, the whole table will be deleted!</div>
 
 ```{sql connection=con}
-delete from stations where id=9999
+delete from only_dwd_stations where id=9999
 ```
 
 # Closing the connection

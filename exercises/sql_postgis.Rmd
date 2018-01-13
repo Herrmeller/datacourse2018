@@ -72,7 +72,15 @@ Do the einzugsgebiete and vegetation_cover tables cover the same area?
 
 ```
 
+Select the 10 stations closest to your HOBO location and query their name and geometry. 
+Calculate the distance to your HOBO location in different coordinate systems. Use ETRS89/UTM 32N; DHDN/GK Z3 and WGS84/Pseudomercartor.
+Do the distances differ and if yes, why?
+```{sql connection=con}
 
+```
+<div class="alert alert-info">
+Answer: 
+</div>
 
 
 ### cleanup

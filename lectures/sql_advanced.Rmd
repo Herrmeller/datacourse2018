@@ -3,15 +3,11 @@ title: "Advanced SQL techniques"
 author: "Mirko Mälicke"
 output:
   html_notebook:
-    df_print: paged
     number_sections: yes
-    theme: flatly
     toc: yes
     toc_float: yes
   html_document:
-    df_print: paged
     number_sections: yes
-    theme: flatly
     toc: yes
     toc_float: yes
   pdf_document:
