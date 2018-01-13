@@ -1,0 +1,153 @@
+---
+title: "R Notebook"
+author: "Mirko Mälicke"
+output: html_notebook
+---
+
+<strong>This is not a mandatory exercise. You can do this exercise in case you have still trouble with basic SQL query syntax and logic.</strong><hr>
+In case you need more practice with basic SQL query structure and the logic behind a data manipulation using SQL, this exercise is perfect. 
+It does not include any environmental data, thus you will be forced to think outside your comfort zone of time-series data. You will only
+need the `nfl` table in the database. This collects all NFL (National Football League) games of the 2016 / 2017 regular season (no Playoffs included). 
+Each entry gives the data, home team, vistor team and the score of both teams. Try to solve all given tasks.
+
+```{r setup, echo=FALSE}
+require(RSQLite)
+drv <- dbDriver('SQLite')
+con <- dbConnect(drv, '../utils/exercises.sqlite')
+```
+
+
+
+### Get to know the data
+
+How many games does a regualar season in the NFL include?
+```{sql connection=con}
+
+```
+
+How many teams are organized in the NFL?
+```{sql connection=con}
+
+```
+
+How many games does a NFL team complete? Will all teams play against each other (just like in the Bundesliga)?
+```{sql connection=con}
+
+```
+
+Which are the NFL teams of 2016?
+```{sql connection=con}
+
+```
+
+One of my favorite Quarterbacks, Cam Newton, played 2016 on my birthday, which is Sep. 8th. Did Cam win his game?
+```{sql connection=con}
+
+```
+
+How many teams from New York play in the NFL?
+```{sql connection=con}
+
+```
+
+How many Los Angeles teams played in the NFL in 2016?
+```{sql connection=con}
+
+```
+
+In 2017 preseason the Los Angeles Chargers celebrated a close victory over the Los Angeles Rams of 21:19. As you learned from the previos chunk, both teams relocated from somewhere else to Los Angeles. Where were the Rams and Chargers located until 2016?
+```{sql connection=con}
+
+```
+
+### Working with the data
+
+Enough preliminary data exploration. Now, let's work with the data. <br>
+Create a view on the nfl table which adds a boolean information on whether the home team won the game or not.
+```{sql connection=con}
+
+```
+
+Is there a home game advantage?
+```{sql connection=con}
+
+```
+
+Which team had the most home victories, which won the fewest? Select both teams in a union statement.
+```{sql connection=con}
+
+```
+
+Because of the American Football rules ties are very sparse in the NFL. From 1997 to 2015 there were overall only three ties. How many ties happened 2016?
+```{sql connection=con}
+
+```
+
+### Aggregation
+
+Other than in the Bundesliga, a NFL team won't earn points for a victory. The teams are split up into _divisions_ of four teams. The team with most victories will win the division and go to the playoffs. Therefore the record is the most important statistic for the teams.
+Before the 11th game day, the Green Bay Packers had a `Green Bay Packers 4-6` record, meaning they lost 6 out of 10 games.<br>
+<br>
+How did the Green Bay Packer do? What was their record at the end of the regular season?
+```{sql connection=con}
+
+```
+
+Calculate the closing recordfor all teams and persist the result as a new view.
+```{sql connection=con}
+
+```
+
+
+Tom Brady, the Patriot's Quarterback, is for many people the best Quarterback of all times. Because of the _Deflategate_ in the Superbowl 2015/2016 he was suspended for four games. How did the team perform with him, how without him?
+```{sql connection=}
+
+```
+
+In the NFL all are about statistics. You will find a statistic for literally everything. Even the salary of players is highly depended on their stastistical performance. The most important offensive statistic is the point/game value. The team with the highest value is considered to be the best offensive team. Which one was that?
+```{sql connection=con}
+
+```
+
+The opposite is used for the defense. The less points the opponent scores per game, the better the defense is. Which one was the best defensive team?
+```{sql connection=con}
+
+```
+
+Calculate the total points in home and visiting games for each team. Use the ratio of both to rank all teams. 
+```{sql connection=con}
+
+```
+
+Calculate the offensive score (points / game) for all teams grouped by home and visiting. Do the same thing for the defensive score. 
+Use these two datasets to group the offensive/defensive scores by the amount of won games and save them to R data.frames. Use R to
+visualize the correlation between the number of games won and the four different scores. Can you find any correlations?
+```{sql connection=con, output.var="off.home"}
+-- query the offensive home score here
+
+```
+```{sql connection=con, output.var="off.visit"}
+-- query the offensive visiting score here
+
+```
+```{sql connection=con, output.var="def.home"}
+-- query the defensive home score here
+
+```
+```{sql connection=con, output.var="def.visit"}
+-- query the defensive visiting score here
+
+```
+```{r}
+# correlation analysis
+# off.home, off.visit, def.home and def.visit are available here
+
+```
+
+
+
+### cleanup
+```{r, echo=FALSE}
+dbDisconnect(con)
+```
+
