@@ -45,7 +45,8 @@ def import_hobo(hobo, con, hobo_id):
     except Exception as e:
         print(str(e))
     try:
-        inten.to_sql('data', con, if_exists='append', index=False)
+        pass
+        #inten.to_sql('data', con, if_exists='append', index=False)
     except Exception as e:
         print(str(e))
     print('Uploaded OID: %d.' % oid)
