@@ -1,0 +1,129 @@
+--
+title: "Sensor study"
+author: "Mirko Mälicke"
+output:
+  html_document: 
+    toc: yes
+    theme: flatly
+  html_notebook:
+    toc: yes
+    theme: flatly
+  pdf_document:
+    toc: yes
+---
+
+```{r, echo=FALSE}
+# require the package
+if (!("RPostgreSQL" %in% installed.packages())){
+  install.packages("RPostgreSQL")
+}
+if (!("getPass" %in% installed.packages())){
+  install.packages("getPass")
+}
+require(RPostgreSQL)
+require(getPass)
+require(ggplot2)
+require(dplyr)
+
+# establish the connection
+drv <- dbDriver('PostgreSQL')
+con <- dbConnect(drv, host='openhydro.de', port=5432, user=getPass('Provide the user'), 
+                 password=getPass('Provide the password'), dbname='dwd')
+```
+
+# Plot heterogeneity
+## Description
+
+In this notebook you should conduct a small sensor study. 
+Me, being one of the lecturers (Mirko Mälicke), installed three sensors at my domicile.
+As described in the comments (in the database), two senors were installed at exactly the same position, but with different radiation protection. 
+The thrid sensor was located on the north balcony, while the other two are located on the south balcony. 
+Generally speaking, you shall evaluate if there are substantial differences between the sensors. <br>
+
+  * How much do you estimate as measuring error? 
+  * How much difference can be tracked down to the differences in radiation protection?
+  * What lessons can be learned in terms on sensor precision and uncertainties?
+  * Can you express your any findings in a single number (like an error)? Reinterpret your map from assignment 4 considering this error.<hr>
+The chunks below should only get you on the track of this analysis. You are free to change the structure of this Markdown file as you need it. Your solution to the questions asked above will be graded.
+  
+## Load the data
+
+Load the correct stations, in order to find the correct ids of the requested sensors.
+```{sql connection=con}
+
+```
+
+Load the three sensors
+```{sql connection=con, output.var="north"}
+
+```
+```{sql connection=con, output.var="south.1"}
+
+```
+```{sql connection=con, output.var="south.2"}
+
+```
+
+## Plot
+```{r}
+
+```
+
+## Calculate the residuals
+
+Which residuals are of interest? What could be tracked back to measurement errors? When (in terms of time) can residuals be traced back to radiation influences, when not?
+```{r}
+
+```
+
+How would you visualize the residuals? Boxplot? Violine plot? bar plot (over time)?
+```{r}
+
+```
+
+## Precision 
+
+There are different things that could make up the 'precision'. Maybe the mean residuals of the two south sensors in times of low or no radiation influence. How much (relative) do the mean residuals differ in times of high radiation influence?
+```{r}
+
+```
+
+When comparing south to north side sensor, you can get a coarse idea of the small scale heterogeneity due to the measuring location. If you understand these differences as signal noise, how do overview maps of Freiburg showing any kind of temeprature index change? 
+Are the observed spatial differences within your found error margins or are they substantially higher?
+```{r}
+
+```
+
+# Annual heterogeneity
+## Same device
+
+The database also includes last year measurements from your predecessors. They uploaded hourly aggregated corrected temperature mean values.
+Some did use one of the HOBO devices, that you used this year. Which ones?
+```{sql connection=con}
+
+```
+
+Calculate the ranks of hourly aggregates over time, for both time series in this and last year. 
+You can use an integer index over the datetime (like 1,2,3 ... for the first, second, third recorded hour) to make the measurements comparable, as long as they have the same hour of day as a starting point.
+Is there a pattern in ranks? Are the duplicated HOBO devices especially 'warm' or 'cold', despite the location?
+```{r}
+
+```
+
+
+## Proximity
+
+Redo the last analysis for all HOBO sensor pairs of this and last year. Couple the sensors based on their proximity. (Search for the closest sensor from last year for each sensor in this year.)
+```{sql connection=con}
+
+```
+
+```{r}
+
+```
+
+# cleanup
+```{r}
+dbDisconnect(con)
+```
+
