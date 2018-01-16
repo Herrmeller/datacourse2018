@@ -38,8 +38,4 @@ Furthermore a Github (<a href="https://github.com/" target="_blank">https://gith
 
 ### Exercises
 
-|           exercise         | topic |                        link                              |       mandatory         |
-| -------------------------- |:-----:|:--------------------------------------------------------:|:-----------------------:|
-| Exercise 2 |   1   | [Exercise_Index.md](Exercise_Index.md) | <span class="glyphicon glyphicon-ok" style="color:green"></span> |
-| SQL introduction | 4 | [SQL introduction](exercises/sql_exercises.Rmd) | <span class="glyphicon glyphicon-ok" style="color:green"></span> |
-| N.A. | N.A. | [dead link](exercises/file.Rmd) | <span class="glyphicon glyphicon-remove" style="color:red"></span> |
+See Moodle for more details.
