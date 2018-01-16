@@ -1,0 +1,216 @@
+---
+title: "Exercise - Tracks"
+author: "Mirko Mälicke"
+output:
+  html_notebook:
+    number_sections: yes
+    toc: yes
+    toc_float: yes
+  html_document:
+    number_sections: yes
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
+---
+
+
+# Description
+<strong>This is not a mandatory exercise. You can do this exercise in case you want more exercise using PostGIS.</strong><hr>
+In case you need more practice with PostGIS, this exercise is perfect. It will force you to work on way larger datasets and go 
+beyond the level of the PostGIS lecture.
+It does not include any environmental data, thus you will be forced to think outside your comfort zone of time-series data. 
+
+```{r, echo=F}
+# require the package
+if (!("RPostgreSQL" %in% installed.packages())){
+  install.packages("RPostgreSQL")
+}
+if (!("getPass" %in% installed.packages())){
+  install.packages("getPass")
+}
+require(RPostgreSQL)
+require(getPass)
+require(ggplot2)
+require(dplyr)
+
+# establish the connection
+drv <- dbDriver('PostgreSQL')
+con <- dbConnect(drv, host='openhydro.de', port=5432, user=getPass('Provide the user'), 
+                 password=getPass('Provide the password'), dbname='dwd')
+```
+
+# Tracks
+
+This exercise is about tracks. The important data table is *track_points* which includes GPS coordintes from my personal Sport-GPS-Watch that I usually wear when I am doing sports. Let's have a look on this table.
+
+```{sql connection=con}
+select * from track_points limit 3
+```
+
+You see, that each coordinate is labeled with the elevation (_ele_) and the time of recording. These information along with some basic assumptions and a analysis of the actual locations are already enough to reconstruct the tracks I was using and analyze my training 
+performance.
+
+<div class="alert alert-warning">**CAUTION:** As you can already see here, this data is quite personal. I am still sharing this with you in order to foster your learing, but please be sensible with it. A commercial usage of this data is not permitted.</div>
+
+# Reconstructing the tracks
+
+PostGIS has a *ST_MakeLine* function, which can construct a *LineString* from a series of points. In Combining this to the assumption, that I have only one activity per day, we can aready construct the tracks.
+
+```{sql connection=con}
+select date_trunc('day', time) as day, st_makeline(geometry) from track_points  group by day limit 3
+```
+
+That seems to work. PostGIS can also calculate the lengths.
+
+```{sql connection=con}
+select date_trunc('day', time) as day, st_length(st_makeline(geometry)) from track_points  group by day limit 3
+```
+
+Very typical error. GPS coordinates are always unprojected WGS84, that means this length has the unit degree, which does not make any sense. Therefore we have to transform it first.
+
+```{sql connection=con}
+select date_trunc('day', time) as day, st_length(st_transform(st_makeline(geometry), 25832)) from track_points  group by day limit 3
+```
+
+Yes I remember. This 37 km run on September, 24 2015 was really horrible. Luckily I did only a 33 km trip next time.<br>
+Of course there was something wrong. GIS tends to do exactly what you told them. 
+Here, the MakeLine function takes the points and connects them to a line. But to reconstruct the track, there is a ordering in the track. Therefore we need to know which point was taken first and which one was taken last. This is what the *track_seg_point_id* is made for.
+
+```{sql connection=con}
+select day, st_length(st_makeline(g)) as length from 
+(select date_trunc('day', time) as day, st_transform(geometry, 25832) as g from track_points  order by day, track_seg_point_id ASC) as t
+group by day order by day ASC
+limit 3
+```
+
+Now, it's your turn as these runs seem to be correct in length.
+
+# Basic statistics
+
+How could you add the activity duration?
+
+<div class="alert alert-info">If you substract a timestamp from another timestamp, the result will be of _interval_ data type.
+This is a valid data type and postgres offers a number of functions to work with time intervals. This exercise part is 
+maybe easier than you think.</div>
+```{sql connection=con}
+
+```
+
+Once you have this (the first three runs I ever did took about 20 minutes.) create a temporary table of your results.
+
+```{sql connection=con}
+create temporary table tracks as
+--your code here
+```
+```{sql connection=con}
+select * from tracks limit 3
+```
+
+The most important performance indicator is the pace. This is the mean time per kilometer and is usualy given in minutes/kilometer.
+Query the new table and add the pace. You could also create a view including the pace or recreate the table including the pace.
+```{sql connection=con}
+
+```
+
+Many non-professional runners consider 6 minutes per kilometer as their target pace for a half marathon or full marathon. How often did I reach this time how often not?
+```{sql connection=con}
+-- code for the amount of runs under 06:00
+```
+```{sql connection=con}
+-- code for the amount of runs over 06:00
+```
+
+How do these numbers distribute between the different years?
+```{sql connection=con}
+select * from 
+(
+  -- code for the amount of runs over 06:00
+) as a
+natural join
+(
+  -- code for the amount of runs under 06:00
+) as b
+order by a.year DESC
+```
+
+Seems like I got worse, doesn't it? Or did I just choose longer distances?
+```{sql connection=con}
+
+```
+
+
+# Going beyond length and time
+
+Maybe the distances do not improve the same as the times get slower. It could also be the elevation. Reconstructing the elevation profile is a bit more tricky. Let's simplify this and look only at one track.
+There is the concept of window functions in Postgres, which we can utilize to query from a ordered window that is nothing else but 
+the actual track itself. Using the function _LAG()_ for the previous or _LEAD()_ for the next value makes the trick.<br>
+Let's select one track and show the previous value and the change in elevation for each track point.
+```{sql connection=con}
+select ogc_fid, ele, time, lag(ele, 1) over w as previous, ele - lag(ele, 1) over w as difference
+from track_points where date_trunc('day', time)='2016-09-23'
+WINDOW w as (order by track_seg_point_id ASC)
+```
+
+Try to understand what this _over_ does then you should be able to recalculate the tracks including the sum of **positive** elevation change. 
+Search the documentation for the _with_ environment and the partition keyword. Query the points by WITH and lay the window 
+over the partition where the day stays the same.
+
+<div class="alert alert-warning">Below, the exercise does get a bit more tricky and difficult. You will need some concepts about SQL, which were not introducted in the lectures. Use [StackOverflow](https://stackoverflow.com) or the PostgreSQL [documentation](https://www.postgresql.org/docs/)</div>
+```{sql connection=con}
+with points as (
+  -- select the points per track here, as you need them to be aggregated in the select below
+)
+select 
+  -- create the result here
+from points 
+group by -- the day
+order by-- the day
+```
+
+If that looks fine, either join the result to the old track table or create a new one.
+
+```{sql connection=con}
+create temporary table yourname_extended_tracks as
+ -- use the query from above
+```
+
+Now, to complte the previous analysis: The percentage of runs below a pace of 6 minutes drops over the years (2016 and 2017), while the distance did not increase that much. Does the sum of positive elevation change significantly?
+```{sql connection=con}
+
+```
+
+Nope.
+
+# General overviews
+
+Finally we produced a nice overview table. Now, let's query some more general statistics and stream some results back to R.
+First, use the numbers from above for creating a violin plot (or box plot).
+```{sql connection=con, output.var="ele.a"}
+
+```
+```{r}
+ele.a %>%
+  ## do your ggplot / wrangling / both here
+```
+
+Lastly, there might be an influence on the performance based on the month of the year. Maybe I do only imporve when it's not too cold and not too hot.
+```{sql connection=con, output.var="ele.m"}
+
+```
+```{r}
+ele.m %>%
+  ## do your ggplot / wrangling / both here
+```
+
+Last but not least: Calculate the overall statistics. The total distance, duration, mean pace and total positive elevation gains.
+```{sql connection=con}
+
+```
+
+
+# cleanup
+```{r}
+dbDisconnect(con)
+```
+
