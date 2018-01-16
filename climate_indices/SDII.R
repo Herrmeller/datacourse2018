@@ -1,15 +1,12 @@
 #-------------------------------------------------------------------------------
 #Topic 4: Big data - DWD Stations with 40 years "Climate Data Baden-Württemberg"
-#
 #Indicator SDII: annual number of rain days
-#
 #M. Lorff, J. Opdenhoff, N. Veigel, Januar 2018
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
 #Packages
 #-------------------------------------------------------------------------------
-
 library("lubridate")
 library("tidyverse")
 
