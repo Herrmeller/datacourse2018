@@ -29,7 +29,7 @@ con <- dbConnect(drv, host='openhydro.de', port=5432, user=getPass('Provide the 
 
 Select all stations located lower than 400 meter.
 ```{sql connection=con}
-
+select name from stations where elevation < 400
 ```
 
 How many stations start with the letter 'W'?

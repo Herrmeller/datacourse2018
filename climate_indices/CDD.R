@@ -54,7 +54,7 @@ uniqueCCD <- unique(BW_id2[,c("year", "n")])
 # the average of CDD in the time-period:
 avg <- mean(uniqueCCD$n)
 
-## Calculating rate-of-change-index: values of last twenty years of measurment divided by first twenty years of measurement.
+## Calculating rate-of-change-index: values of last twenty years of measurment divided by first twenty years of measurement. Output in %
 firsttwenty <- uniqueCCD %>% 
   filter(year >= startyear  & year <= (startyear+19) ) 
 
@@ -65,7 +65,7 @@ lasttwenty <- uniqueCCD %>%
 if(length(firsttwenty$n) < 10 | length(lasttwenty$n) < 10){
   ABC <- NA
 } else {
-  ABC <- mean(lasttwenty$n) / mean(firsttwenty$n)
+  ABC <- (mean(lasttwenty$n) / mean(firsttwenty$n))*100
 }
   
 if(output== "standart" ){
