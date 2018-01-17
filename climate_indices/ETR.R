@@ -38,6 +38,16 @@ dfmax <- dfilter %>%
 
 #6.Calculate the range
 dfmax %>% mutate(Trange = abs(Tmax-Tmin))
+  
+avg <- mean(result$Trange)  
+  
+if(length(result$Trange[1:20]) < 10 | length(result$Trange[21:40]) < 10){
+  ABC <- NA
+} else {
+  ABC <- (mean(result$Trange[21:40])/mean(result$Trange[1:20]))*100
+}
+
+return(list(average_ETR = avg, ABC=ABC))
 
 } #end of function 
 
