@@ -1,7 +1,8 @@
 #-------------------------------------------------------------------------------
 #Topic 4: Big data - DWD Stations with 40 years "Climate Data Baden-Württemberg"
 #
-#Indicator SDII: annual number of rain days
+# Simple daily intensity index: 
+# total amount of rainfall per year devided by the number of rain days per year
 #
 #M. Lorff, J. Opdenhoff, N. Veigel, Januar 2018
 #-------------------------------------------------------------------------------
@@ -38,7 +39,7 @@ data <-
   #extract years
     mutate(year = year(date)) %>%
     group_by(id, year) %>%
-  #count annual NA-values and days with more than 1 mm rainfall
+  #count annual NA-values, days with more than 1 mm rainfall and sum up the total rainfall per year
     summarise(count_na = sum(is.na(RSK)), count_precip = sum(RSK>=1, na.rm = T), total = sum(RSK, na.rm = T)) %>%
   #extract only your station ID
     filter(id == ID) %>%
